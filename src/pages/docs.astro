@@ -1,0 +1,59 @@
+---
+import Base from '../layouts/Base.astro'
+import { href } from '../config'
+
+const sections = [
+  ['install', 'Install'], ['signin', 'Sign in to GitHub'], ['vault', 'Create a vault'], ['secret', 'Add a secret and use it'], ['apps', 'Use it in your apps'],
+]
+---
+<Base title="Docs" current="Docs">
+  <div class="docs">
+    <aside class="side">
+      <div><h4>GETTING STARTED</h4>{sections.map(([id, t], i) => <a href={`#${id}`} aria-current={i === 0 ? 'true' : undefined}>{t}</a>)}</div>
+      <div><h4>REFERENCE</h4><a href={href('/security/')}>Security model</a><a href={href('/changelog/')}>Changelog</a><a href={href('/download/')}>Download</a></div>
+    </aside>
+    <article class="article">
+      <span class="crumb">Docs / Getting started</span>
+      <h1 class="h1" style="font-size:2.75rem">Get started</h1>
+      <p class="lead" style="max-width:640px">Install Gitvault, sign in with GitHub and store your first secret. It takes about two minutes, and the desktop app and the CLI use the same vault.</p>
+
+      <h2 id="install"><i>01</i>Install</h2>
+      <p>Download the installer for Windows or Ubuntu from the <a class="green" href={href('/download/')}>download page</a>. Gitvault needs git on your PATH.</p>
+
+      <h2 id="signin"><i>02</i>Sign in to GitHub</h2>
+      <p>Pick whichever fits. The GitHub CLI route needs no setup if you already use gh.</p>
+      <div>
+        <div class="opt"><b>GitHub CLI</b><p>Run gh auth login once, then choose "Continue with GitHub CLI" in the app.</p></div>
+        <div class="opt"><b>Personal access token</b><p>Create a token with the repo scope and paste it into the app or pipe it to the CLI.</p></div>
+        <div class="opt"><b>Device flow</b><p>Sign in from your browser. Needs an OAuth app with Device Flow enabled.</p></div>
+      </div>
+
+      <h2 id="vault"><i>03</i>Create a vault</h2>
+      <p>A vault is a private GitHub repository holding only encrypted files. Choose a master password and save the recovery key shown once.</p>
+      <pre class="code"><span class="g">$</span> gitvault auth login --from-gh
+<span class="g">$</span> gitvault vault create --name Personal
+<span class="c"># prompts for a master password and prints your recovery key</span></pre>
+      <div class="callout"><b>Keep your recovery key safe</b><p>It is the only way back in if you forget your master password. Gitvault cannot recover it for you.</p></div>
+
+      <h2 id="secret"><i>04</i>Add a secret and use it</h2>
+      <p>Add secrets in the app, or from the terminal. The value comes from stdin or a hidden prompt, never from an argument.</p>
+      <pre class="code"><span class="g">$</span> echo -n "sk_live_…" | gitvault secret add STRIPE_KEY \
+    --environment production --value-stdin
+<span class="g">$</span> gitvault secret list
+<span class="g">$</span> gitvault run --environment production -- ./deploy.sh
+<span class="c"># secrets injected as environment variables, never printed</span>
+<span class="g">$</span> gitvault sync now</pre>
+
+      <h2 id="apps"><i>05</i>Use it in your apps</h2>
+      <p>In Node.js, load a whole environment into process.env without a .env file:</p>
+      <pre class="code"><span class="g">import 'gitvault/config'</span> <span class="c">// uses GITVAULT_ENV, then NODE_ENV</span></pre>
+      <p>Servers and CI set <code class="green">GITVAULT_TOKEN</code> (a read-only GitHub token for the vault repo) and <code class="green">GITVAULT_DEVICE_KEY</code> (from <code>gitvault device trust --name prod-server --export</code>). Revoke a key any time with <code>gitvault device revoke</code>.</p>
+
+      <div class="next">
+        <a href={href('/security/')}><b>Security model →</b><span>How your secrets are encrypted and stored.</span></a>
+        <a href={href('/changelog/')}><b>Changelog →</b><span>What changed in each release.</span></a>
+      </div>
+    </article>
+    <aside class="toc"><h4>ON THIS PAGE</h4>{sections.map(([id, t]) => <a href={`#${id}`}>{t}</a>)}</aside>
+  </div>
+</Base>

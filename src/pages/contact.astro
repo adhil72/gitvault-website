@@ -1,0 +1,111 @@
+---
+import Base from '../layouts/Base.astro'
+import Icon from '../components/Icon.astro'
+import { site, href } from '../config'
+
+const topics = ['Question', 'Bug', 'Idea', 'Security']
+---
+<Base title="Contact" current="Contact" description="Questions, bugs or ideas for Gitvault? Send a message.">
+  <section class="contact-hero wrap" id="intro">
+    <h1 class="display">Say hello</h1>
+    <p class="lead" style="margin-top:20px;max-width:520px;margin-inline:auto">Questions, bugs, ideas. Tell us what you need and we will reply.</p>
+  </section>
+
+  <section class="wrap" style="padding-bottom:128px" id="stage">
+    <form id="contact-form" class="form-card" novalidate data-endpoint={site.contactEndpoint ?? ''} data-issues={site.issuesUrl} data-security={site.securityUrl}>
+      <div class="field">
+        <span class="lbl" id="topic-lbl">What is this about?</span>
+        <div class="segmented" role="radiogroup" aria-labelledby="topic-lbl">
+          {topics.map((t, i) => (<><input type="radio" name="topic" id={`t-${t}`} value={t} checked={i === 0} /><label for={`t-${t}`}>{t}</label></>))}
+        </div>
+        <p class="hint" id="security-hint" hidden>Please report vulnerabilities privately. <a class="green" href={site.securityUrl}>Open a security advisory</a> instead of using this form.</p>
+      </div>
+      <div class="row2">
+        <div class="field"><label for="name">Name</label><input class="input" id="name" name="name" autocomplete="name" placeholder="Your name" /></div>
+        <div class="field"><label for="email">Email</label><input class="input" id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required /><p class="hint" id="email-hint"></p></div>
+      </div>
+      <div class="field"><label for="message">Message</label><textarea class="input" id="message" name="message" placeholder="How can we help?" required></textarea><p class="hint" id="message-hint"></p></div>
+      <div class="stack" style="gap:14px;align-items:center">
+        <button class="btn btn-primary btn-lg btn-block" type="submit" id="send">Send message <Icon name="arrow" size={18} sw={2.25} /></button>
+        <p class="privacy"><Icon name="lock" size={14} />Please never include passwords or keys. We use your email only to reply.</p>
+      </div>
+    </form>
+
+    <div class="sent" id="sent" role="status">
+      <Icon name="check" size={72} sw={1.75} />
+      <h2 class="display" style="font-size:clamp(2.5rem,5vw,4rem)">Message sent</h2>
+      <p class="lead" id="sent-text" style="max-width:520px">Thanks. We will get back to you soon.</p>
+      <div class="cta-row"><a class="btn" href={href('/')}>Back to home</a><a class="btn" style="background:none;border-color:transparent;color:var(--fg-muted)" href={href('/docs/')}>Read the docs →</a></div>
+    </div>
+
+    <div class="quiet" id="alts">
+      <a href={site.issuesUrl}>Open an issue ↗</a><a href={site.discussionsUrl}>Join the discussion ↗</a><a href={site.securityUrl}>Report a vulnerability privately ↗</a>
+    </div>
+  </section>
+</Base>
+
+<script>
+  const form = document.getElementById('contact-form') as HTMLFormElement
+  const $ = (id: string) => document.getElementById(id) as HTMLElement
+  const email = form.elements.namedItem('email') as HTMLInputElement
+  const message = form.elements.namedItem('message') as HTMLTextAreaElement
+  const emailOk = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)
+
+  function mark(input: HTMLElement, hint: HTMLElement, text: string, kind: '' | 'err' | 'ok') {
+    input.setAttribute('aria-invalid', String(kind === 'err'))
+    hint.textContent = text
+    hint.className = `hint ${kind}`
+  }
+  // Validate inline as the person types, not only on submit.
+  const checkEmail = () => !email.value ? mark(email, $('email-hint'), '', '') : emailOk(email.value) ? mark(email, $('email-hint'), 'Looks good', 'ok') : mark(email, $('email-hint'), 'Enter a valid email address', 'err')
+  email.addEventListener('input', checkEmail)
+  email.addEventListener('blur', checkEmail)
+  message.addEventListener('input', () => mark(message, $('message-hint'), '', ''))
+
+  form.addEventListener('change', () => {
+    const topic = (new FormData(form).get('topic') as string) ?? ''
+    $('security-hint').hidden = topic !== 'Security'
+  })
+
+  function showSent(name: string, mail: string) {
+    form.hidden = true
+    $('alts').hidden = true
+    $('intro').hidden = true
+    $('sent-text').textContent = mail ? `Thanks${name ? ', ' + name : ''}. We will reply to ${mail}.` : 'Thanks. We will get back to you soon.'
+    $('sent').dataset.show = ''
+    window.scrollTo({ top: 0 })
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const data = new FormData(form)
+    const mail = String(data.get('email') ?? '').trim()
+    const body = String(data.get('message') ?? '').trim()
+    if (!emailOk(mail)) { mark(email, $('email-hint'), 'Enter a valid email address', 'err'); email.focus(); return }
+    if (!body) { mark(message, $('message-hint'), 'Tell us a little about what you need', 'err'); message.focus(); return }
+    const topic = String(data.get('topic'))
+    const name = String(data.get('name') ?? '').trim()
+    // Vulnerabilities must never become public issues, so they are sent to the private advisory form.
+    if (topic === 'Security') { window.open(form.dataset.security as string, '_blank', 'noopener'); return }
+    const endpoint = form.dataset.endpoint
+    if (endpoint) {
+      const btn = $('send') as HTMLButtonElement
+      btn.disabled = true
+      try {
+        const res = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify({ topic, name, email: mail, message: body }) })
+        if (!res.ok) throw new Error(String(res.status))
+        showSent(name, mail)
+      } catch {
+        btn.disabled = false
+        mark(message, $('message-hint'), 'Could not send right now. Please try again, or open a GitHub issue below.', 'err')
+      }
+      return
+    }
+    // No form service configured: hand off to a prefilled public issue. The email is not included.
+    const url = new URL(form.dataset.issues as string)
+    url.searchParams.set('title', `[${topic}] `)
+    url.searchParams.set('body', body)
+    window.open(url.toString(), '_blank', 'noopener')
+    showSent(name, '')
+  })
+</script>

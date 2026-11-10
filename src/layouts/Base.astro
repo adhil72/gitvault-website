@@ -1,0 +1,42 @@
+---
+import '../styles/global.css'
+import { site, nav, href } from '../config'
+const { title, description = 'Encrypted secrets in your own private GitHub repository. A desktop app and CLI for Windows and Ubuntu.', current = '' } = Astro.props
+const full = title === site.name ? title : `${title} · ${site.name}`
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{full}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#010409" />
+    <meta property="og:title" content={full} />
+    <meta property="og:description" content={description} />
+    <link rel="icon" type="image/png" href={href('/logo.png')} />
+  </head>
+  <body>
+    <header class="nav">
+      <div class="wrap">
+        <a class="brand" href={href('/')}><img src={href('/logo.png')} alt="" width="32" height="32" />{site.name}</a>
+        <nav class="nav-links" aria-label="Main">
+          {nav.map((n) => <a href={href(n.path)} aria-current={current === n.label ? 'page' : undefined}>{n.label}</a>)}
+        </nav>
+        <div class="nav-right">
+          <a href={site.repoUrl}>GitHub</a>
+          <a class="btn btn-primary btn-sm" href={href('/download/')}>Download</a>
+        </div>
+      </div>
+    </header>
+    <main><slot /></main>
+    <footer class="footer">
+      <div class="wrap">
+        <div class="brand"><img src={href('/logo.png')} alt="" width="24" height="24" />{site.name} <small>© 2026 · MIT licensed</small></div>
+        <nav aria-label="Footer">
+          <a href={site.repoUrl}>GitHub</a><a href={href('/docs/')}>Docs</a><a href={href('/changelog/')}>Changelog</a><a href={href('/security/')}>Security</a><a href={href('/contact/')}>Contact</a>
+        </nav>
+      </div>
+    </footer>
+  </body>
+</html>

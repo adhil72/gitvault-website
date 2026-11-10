@@ -1,0 +1,34 @@
+---
+import Base from '../layouts/Base.astro'
+import Icon from '../components/Icon.astro'
+
+const releases = [{
+  version: 'v0.1.0', date: 'November 10, 2026', title: 'First public release',
+  groups: [
+    ['Vaults and secrets', ['Create, connect, unlock and lock encrypted vaults stored in a private GitHub repository', 'Add, edit, rotate and delete secrets with environments, tags, favorites and expiry reminders', 'Master password with Argon2id key derivation, AES-256-GCM encryption and a one-time recovery key']],
+    ['History and sync', ['Every change is a git commit, with version history and restore for any secret', 'Sync with GitHub and resolve conflicts side by side when two devices edit the same secret', 'Audit log of reveals and changes']],
+    ['Desktop and CLI', ['Desktop app for Windows and Ubuntu, with a password, passphrase and PIN generator', 'gitvault CLI: run and inject secrets without printing them, import and export .env files, JSON output and shell completions', 'Node.js package: import gitvault/config to load secrets into process.env', 'MCP server (gitvault mcp) so AI tools can use secrets without seeing values']],
+  ],
+}]
+---
+<Base title="Changelog" current="Changelog">
+  <section class="page-head wrap">
+    <h1 class="h1" style="font-size:3.5rem">Changelog</h1>
+    <p class="lead">New releases, fixes and everything that changed. Follow along on GitHub Releases.</p>
+  </section>
+  <section class="wrap" style="padding-bottom:112px">
+    {releases.map((r) => (
+      <article class="release">
+        <div><div class="ver">{r.version}</div><div class="date">{r.date}</div></div>
+        <div>
+          <h2 class="h3" style="font-size:1.75rem;letter-spacing:-0.03em;margin-bottom:28px">{r.title}</h2>
+          {r.groups.map(([g, items]) => (
+            <div class="grp"><span class="label muted">{g}</span>
+              <ul class="ticks">{(items as string[]).map((i) => <li><Icon name="check" size={16} sw={2.25} />{i}</li>)}</ul></div>
+          ))}
+        </div>
+      </article>
+    ))}
+    <p class="muted" style="border-top:1px solid var(--border-muted);padding-top:40px">Older releases will appear here. Subscribe to the repository on GitHub to get new versions in your inbox.</p>
+  </section>
+</Base>

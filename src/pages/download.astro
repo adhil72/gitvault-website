@@ -1,0 +1,47 @@
+---
+import Base from '../layouts/Base.astro'
+import { site } from '../config'
+
+const platforms = [
+  { name: 'Windows', req: 'Windows 10 or later', primary: 'Download installer (.exe)', alts: [['MSI package (.msi)', 'For managed deployments'], ['All Windows downloads', 'GitHub Releases']], note: 'Requires git. Install Git for Windows if you do not have it yet.' },
+  { name: 'Ubuntu and Debian', req: 'Ubuntu 22.04 or later', primary: 'Download package (.deb)', alts: [['AppImage', 'Runs on any Linux distro'], ['All Linux downloads', 'GitHub Releases']], note: 'The .deb installs git and the GitHub CLI for you. The AppImage needs both installed.' },
+]
+const needs = [
+  ['A GitHub account', 'Your vault is stored in a private repository in your account. Sign in with the GitHub CLI, a personal access token or device flow.'],
+  ['git on your PATH', 'Gitvault uses git for history and sync, so every change is a commit you can inspect.'],
+  ['A master password', 'It never leaves your device. You also get a recovery key once, so keep it somewhere safe.'],
+]
+---
+<Base title="Download" current="">
+  <section class="page-head wrap">
+    <h1 class="h1" style="font-size:3.5rem">Download Gitvault</h1>
+    <p class="lead">Version {site.version} · Free and open source. The desktop app includes the gitvault command-line tool.</p>
+  </section>
+  <section class="wrap">
+    <div class="cols c2">
+      {platforms.map((p) => (
+        <div class="card platform" style="padding:36px">
+          <h2>{p.name}</h2>
+          <span class="mono muted" style="font-size:15px">{p.req}</span>
+          <a class="btn btn-primary btn-block" style="padding:16px" href={site.releasesUrl}>{p.primary}</a>
+          <div class="alts">{p.alts.map(([a, b]) => <a class="alt" href={site.releasesUrl}>{a}<span>{b}</span></a>)}</div>
+          <p class="note">{p.note}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+  <section class="section wrap" style="padding-bottom:0">
+    <div class="sec-head" style="margin-bottom:32px"><h2 class="h2" style="font-size:2rem">What you need</h2></div>
+    <div class="cells c3">{needs.map(([t, b]) => <div class="cell" style="padding:28px"><h3 class="h3" style="font-size:1.125rem">{t}</h3><p>{b}</p></div>)}</div>
+  </section>
+  <section class="section wrap">
+    <div class="split" style="grid-template-columns:1fr 560px">
+      <div class="stack" style="gap:14px"><h2 class="h2" style="font-size:2rem">Prefer to build it yourself?</h2><p class="lead">Gitvault is MIT licensed. You need Node 22+, pnpm, stable Rust and the Tauri system libraries.</p></div>
+      <pre class="code" set:html={`<span class="g">$</span> git clone ${site.repoUrl}.git
+<span class="g">$</span> pnpm install
+<span class="g">$</span> pnpm dev
+<span class="c"># or the CLI only</span>
+<span class="g">$</span> cargo run -p gitvault-cli -- --help`} />
+    </div>
+  </section>
+</Base>
