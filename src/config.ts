@@ -3,8 +3,6 @@ export const site = {
   name: 'Gitvault',
   version: '0.1.0',
   repoUrl: 'https://github.com/adhil72/gitvault',
-  // Release assets must live in a public repository for downloads and the app updater to work.
-  releasesUrl: 'https://github.com/adhil72/gitvault/releases/latest',
   issuesUrl: 'https://github.com/adhil72/gitvault/issues/new',
   discussionsUrl: 'https://github.com/adhil72/gitvault/discussions',
   securityUrl: 'https://github.com/adhil72/gitvault/security/advisories/new',
