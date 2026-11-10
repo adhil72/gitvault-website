@@ -4,8 +4,8 @@ import { site } from '../config'
 const downloadUrl = (name: string) => `${site.releasesUrl}/${name}`
 
 const platforms = [
-  { name: 'Windows', req: 'Windows 10 or later', primary: ['Download installer (.exe)', 'GitVault-setup.exe'], alts: [['MSI package (.msi)', 'For managed deployments', 'GitVault.msi']], note: 'Requires git. Install Git for Windows if you do not have it yet.' },
-  { name: 'Ubuntu and Debian', req: 'Ubuntu 22.04 or later', primary: ['Download package (.deb)', 'GitVault.deb'], alts: [['AppImage', 'Runs on any Linux distro', 'GitVault.AppImage']], note: 'The .deb installs git and the GitHub CLI for you. The AppImage needs both installed.' },
+  { name: 'Windows', req: 'Windows 10 or later', primary: ['Download installer (.exe)', 'GitVault-setup.exe'], alts: [], note: 'Requires git. Install Git for Windows if you do not have it yet.' },
+  { name: 'Ubuntu and Debian', req: 'Ubuntu 22.04 or later', primary: ['Download package (.deb)', 'GitVault.deb'], alts: [], note: 'The .deb installs git and the GitHub CLI for you.' },
 ]
 const needs = [
   ['A GitHub account', 'Your vault is stored in a private repository in your account. Sign in with the GitHub CLI, a personal access token or device flow.'],
