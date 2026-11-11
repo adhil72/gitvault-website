@@ -19,22 +19,22 @@ const releases = [{
 ---
 <Base title="Changelog" current="Changelog">
   <section class="page-head wrap">
-    <h1 class="h1" style="font-size:3.5rem">Changelog</h1>
+    <h1 class="h1">Changelog</h1>
     <p class="lead">New releases, fixes and everything that changed. Every release is listed here.</p>
   </section>
-  <section class="wrap" style="padding-bottom:112px">
+  <section class="wrap" style="padding-bottom:clamp(72px,10vw,128px)">
     {releases.map((r) => (
       <article class="release">
         <div><div class="ver">{r.version}</div><div class="date">{r.date}</div></div>
         <div>
-          <h2 class="h3" style="font-size:1.75rem;letter-spacing:-0.03em;margin-bottom:28px">{r.title}</h2>
+          <h2 class="h2 sm">{r.title}</h2>
           {r.groups.map(([g, items]) => (
-            <div class="grp"><span class="label muted">{g}</span>
+            <div class="grp"><span class="label">{g}</span>
               <ul class="ticks">{(items as string[]).map((i) => <li><Icon name="check" size={16} sw={2.25} />{i}</li>)}</ul></div>
           ))}
         </div>
       </article>
     ))}
-    <p class="muted" style="border-top:1px solid var(--border-muted);padding-top:40px">Older releases will appear here. Subscribe to the repository on GitHub to get new versions in your inbox.</p>
+    <p class="muted" style="box-shadow:0 -1px 0 var(--line-soft);padding-top:40px">Older releases will appear here. Subscribe to the repository on GitHub to get new versions in your inbox.</p>
   </section>
 </Base>

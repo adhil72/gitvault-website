@@ -11,25 +11,35 @@ const full = title === site.name ? title : `${title} · ${site.name}`
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{full}</title>
     <meta name="description" content={description} />
-    <meta name="theme-color" content="#010409" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#fbfbfd" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0a0b0d" media="(prefers-color-scheme: dark)" />
     <meta property="og:title" content={full} />
     <meta property="og:description" content={description} />
     <link rel="icon" type="image/png" href={href('/logo.png')} />
   </head>
   <body>
+    <a class="skip" href="#main">Skip to content</a>
     <header class="nav">
       <div class="wrap">
-        <a class="brand" href={href('/')}><img src={href('/logo.png')} alt="" width="32" height="32" />{site.name}</a>
+        <a class="brand" href={href('/')}><img src={href('/logo.png')} alt="" width="28" height="28" />{site.name}</a>
         <nav class="nav-links" aria-label="Main">
           {nav.map((n) => <a href={href(n.path)} aria-current={current === n.label ? 'page' : undefined}>{n.label}</a>)}
         </nav>
         <div class="nav-right">
           <a href={site.repoUrl}>GitHub</a>
           <a class="btn btn-primary btn-sm" href={href('/download/')}>Download</a>
+          <details class="menu">
+            <summary aria-label="Menu">Menu</summary>
+            <nav class="menu-panel" aria-label="Menu">
+              {nav.map((n) => <a href={href(n.path)} aria-current={current === n.label ? 'page' : undefined}>{n.label}</a>)}
+              <a href={site.repoUrl}>GitHub</a>
+            </nav>
+          </details>
         </div>
       </div>
     </header>
-    <main><slot /></main>
+    <main id="main"><slot /></main>
     <footer class="footer">
       <div class="wrap">
         <div class="brand"><img src={href('/logo.png')} alt="" width="24" height="24" />{site.name} <small>© 2026 · MIT licensed</small></div>
