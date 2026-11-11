@@ -200,9 +200,9 @@ textarea.input { min-height: 150px; resize: vertical; }
 [hidden] { display: none !important; }
 
 @media (max-width: 1100px) {
-  .split, .cols.c2, .cols.c3, .steps, .claims, .next, .release, .kv { grid-template-columns: 1fr; }
+  .split, .cols.c2, .cols.c3, .steps, .claims, .next, .release, .kv { grid-template-columns: minmax(0, 1fr) !important; }
   .cells.c3 { grid-template-columns: 1fr 1fr; } .cells.c5 { grid-template-columns: 1fr 1fr; }
-  .docs { grid-template-columns: 1fr; } .docs .toc { display: none; } .docs aside { padding: 24px 24px 0; } .docs .side { position: static; max-height: none; } .docs .article { border-left: 0; }
+  .docs { grid-template-columns: minmax(0, 1fr); } .docs .toc { display: none; } .docs aside { padding: 24px 24px 0; } .docs .side { position: static; max-height: none; } .docs .article { border-left: 0; }
   .article { padding: 32px 24px; }
 }
 @media (max-width: 720px) {
@@ -214,3 +214,8 @@ textarea.input { min-height: 150px; resize: vertical; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
 @media (prefers-reduced-transparency: reduce) { .nav, .form-card { backdrop-filter: none; background: var(--subtle); } }
 .article h3.sub { font-size: 1.25rem; margin: 32px 0 12px; letter-spacing: -0.02em; }
+
+/* Mobile: grid/flex children may shrink below their content (code blocks scroll inside themselves). */
+.cols > *, .cells > *, .split > *, .steps > *, .claims > *, .docs > *, .row2 > * { min-width: 0; }
+@media (max-width: 720px) { .nav-right { gap: 12px; } .nav .wrap { gap: 12px; } .brand { font-size: 18px; } }
+.footer nav { flex-wrap: wrap; gap: 8px 24px; }
