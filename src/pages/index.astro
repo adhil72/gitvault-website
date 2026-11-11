@@ -19,7 +19,7 @@ const envs = [
     -- npm run dev
 
 <span class="c">// Node.js: no .env file needed</span>
-<span class="g">import 'gitvault/config'</span>`,
+<span class="g">import '@adhil72/gitvault/config'</span>`,
     points: ['Loads into process.env on the first line', 'Import an existing file with gitvault import env', 'Outside the trusted folder it stays locked'] },
   { env: 'Staging', color: 'var(--attention)', title: 'CI and staging', body: 'Give every pipeline its own revocable device key and a read-only GitHub token. No master password in your CI settings.',
     code: `<span class="g">$</span> gitvault device trust --name ci --export
@@ -38,7 +38,7 @@ GITVAULT_TOKEN=••••••••</span>
 ]
 
 const integrations = [
-  ['Node.js', 'Load secrets into process.env at startup.', "import 'gitvault/config'"],
+  ['Node.js', 'Load secrets into process.env at startup, with TypeScript types.', "import '@adhil72/gitvault/config'"],
   ['Any command', 'Run any program with secrets as environment variables.', 'gitvault run -- <cmd>'],
   ['Config templates', 'Fill {{ NAME }} placeholders, written with 0600 permissions.', 'gitvault inject --in --out'],
   ['.env files', 'Import what you have today, export when a tool needs one.', 'gitvault import env .env'],

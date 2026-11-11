@@ -211,3 +211,4 @@ textarea.input { min-height: 150px; resize: vertical; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
 @media (prefers-reduced-transparency: reduce) { .nav, .form-card { backdrop-filter: none; background: var(--subtle); } }
+.article h3.sub { font-size: 1.25rem; margin: 32px 0 12px; letter-spacing: -0.02em; }

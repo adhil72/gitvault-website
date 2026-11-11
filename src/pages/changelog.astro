@@ -3,11 +3,17 @@ import Base from '../layouts/Base.astro'
 import Icon from '../components/Icon.astro'
 
 const releases = [{
+  version: 'v0.1.1', date: 'November 11, 2026', title: 'Updates, checksums and a TypeScript library',
+  groups: [
+    ['Updates', ['The Windows app checks for signed updates and installs them from Settings, with a quiet notice at startup', 'Every release ships SHA256SUMS next to the installers']],
+    ['Developers', ['The Node.js library is now written in TypeScript, with types and both import and require support', 'Published on GitHub Packages as @adhil72/gitvault']],
+  ],
+}, {
   version: 'v0.1.0', date: 'November 10, 2026', title: 'First public release',
   groups: [
     ['Vaults and secrets', ['Create, connect, unlock and lock encrypted vaults stored in a private GitHub repository', 'Add, edit, rotate and delete secrets with environments, tags, favorites and expiry reminders', 'Master password with Argon2id key derivation, AES-256-GCM encryption and a one-time recovery key']],
     ['History and sync', ['Every change is a git commit, with version history and restore for any secret', 'Sync with GitHub and resolve conflicts side by side when two devices edit the same secret', 'Audit log of reveals and changes']],
-    ['Desktop and CLI', ['Desktop app for Windows and Ubuntu, with a password, passphrase and PIN generator', 'gitvault CLI: run and inject secrets without printing them, import and export .env files, JSON output and shell completions', 'Node.js package: import gitvault/config to load secrets into process.env', 'MCP server (gitvault mcp) so AI tools can use secrets without seeing values']],
+    ['Desktop and CLI', ['Desktop app for Windows and Ubuntu, with a password, passphrase and PIN generator', 'gitvault CLI: run and inject secrets without printing them, import and export .env files, JSON output and shell completions', 'Node.js package: import @adhil72/gitvault/config to load secrets into process.env', 'MCP server (gitvault mcp) so AI tools can use secrets without seeing values']],
   ],
 }]
 ---
