@@ -16,7 +16,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '')
 export const href = (path: string) => `${base}${path}`
 
 export const nav = [
-  { label: 'Features', path: '/#features' },
+  { label: 'How it works', path: '/#autoload' },
   { label: 'Docs', path: '/docs/' },
   { label: 'Security', path: '/security/' },
   { label: 'Changelog', path: '/changelog/' },
