@@ -4,8 +4,8 @@ import { site } from '../config'
 const downloadUrl = (name: string) => `${site.releasesUrl}/${name}`
 
 const platforms = [
-  { name: 'Windows', req: 'Windows 10 or later', primary: ['Download installer (.exe)', 'GitVault-setup.exe'], alts: [], note: 'Requires git. Install Git for Windows if you do not have it yet.' },
-  { name: 'Ubuntu and Debian', req: 'Ubuntu 22.04 or later', primary: ['Download package (.deb)', 'GitVault.deb'], alts: [], note: 'The .deb installs git and the GitHub CLI for you.' },
+  { name: 'Windows', req: 'Windows 10 or later', primary: ['Download installer (.exe)', 'GitVault-setup.exe'], note: 'Requires git. Install Git for Windows if you do not have it yet.' },
+  { name: 'Ubuntu and Debian', req: 'Ubuntu 22.04 or later', primary: ['Download package (.deb)', 'GitVault.deb'], note: 'The .deb installs git and the GitHub CLI for you.' },
 ]
 const needs = [
   ['A GitHub account', 'Your vault is stored in a private repository in your account. Sign in with the GitHub CLI, a personal access token or device flow.'],
@@ -25,7 +25,7 @@ const needs = [
           <h2>{p.name}</h2>
           <span class="mono muted" style="font-size:15px">{p.req}</span>
           <a class="btn btn-primary btn-block" style="padding:16px" href={downloadUrl(p.primary[1])}>{p.primary[0]}</a>
-          <div class="alts">{p.alts.map(([a, b, ext]) => <a class="alt" href={downloadUrl(ext)}>{a}<span>{b}</span></a>)}
+          <div class="alts">
             <a class="alt" href={downloadUrl('SHA256SUMS')}>Checksums<span>SHA256SUMS</span></a></div>
           <p class="note">{p.note}</p>
         </div>
