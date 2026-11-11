@@ -14,11 +14,11 @@ const sections = [
     </aside>
     <article class="article">
       <span class="crumb">Docs / Getting started</span>
-      <h1 class="h1">Get started</h1>
-      <p class="lead">Install Gitvault, sign in with GitHub and store your first secret. It takes about two minutes, and the desktop app and the CLI use the same vault.</p>
+      <h1 class="h1" style="font-size:2.75rem">Get started</h1>
+      <p class="lead" style="max-width:640px">Install Gitvault, sign in with GitHub and store your first secret. It takes about two minutes, and the desktop app and the CLI use the same vault.</p>
 
       <h2 id="install"><i>01</i>Install</h2>
-      <p>Download the installer for Windows or Ubuntu from the <a class="link" href={href('/download/')}>download page</a>. Gitvault needs git on your PATH.</p>
+      <p>Download the installer for Windows or Ubuntu from the <a class="green" href={href('/download/')}>download page</a>. Gitvault needs git on your PATH.</p>
 
       <h2 id="signin"><i>02</i>Sign in to GitHub</h2>
       <p>Pick whichever fits. The GitHub CLI route needs no setup if you already use gh.</p>
@@ -48,7 +48,7 @@ const sections = [
       <p>Anything can run under the CLI: <code>gitvault run</code> injects an environment as variables and starts your command. Node.js apps can also load secrets in code, with no .env file in the project.</p>
 
       <h3 id="node" class="sub">Node.js and TypeScript</h3>
-      <p>The library is written in TypeScript, ships its own types, and works with both <code>import</code> and <code>require</code> on Node 18 or newer. It is published on GitHub Packages as <code class="link">@adhil72/gitvault</code>. Point the scope at GitHub's registry and sign in with a token that has <code>read:packages</code>:</p>
+      <p>The library is written in TypeScript, ships its own types, and works with both <code>import</code> and <code>require</code> on Node 18 or newer. It is published on GitHub Packages as <code class="green">@adhil72/gitvault</code>. Point the scope at GitHub's registry and sign in with a token that has <code>read:packages</code>:</p>
       <pre class="code"><span class="c"># .npmrc</span>
 @adhil72:registry=https://npm.pkg.github.com
 //npm.pkg.github.com/:_authToken=&#36;&#123;NODE_AUTH_TOKEN&#125;
@@ -74,7 +74,7 @@ const sections = [
       <p>AI tools can use secrets without seeing the values through the MCP server: <code>gitvault mcp</code>.</p>
 
       <h3 id="servers" class="sub">Servers and CI</h3>
-      <p>Nothing interactive is needed. Set <code class="link">GITVAULT_TOKEN</code> (a read-only GitHub token for the vault repo) and <code class="link">GITVAULT_DEVICE_KEY</code> (from <code>gitvault device trust --name prod-server --export</code>). Both are removed from the process after use, and you can revoke a key any time with <code>gitvault device revoke</code>. <code>GITVAULT_PASSWORD</code> also works. A locked vault never prompts: it fails with <code>E_LOCKED</code>.</p>
+      <p>Nothing interactive is needed. Set <code class="green">GITVAULT_TOKEN</code> (a read-only GitHub token for the vault repo) and <code class="green">GITVAULT_DEVICE_KEY</code> (from <code>gitvault device trust --name prod-server --export</code>). Both are removed from the process after use, and you can revoke a key any time with <code>gitvault device revoke</code>. <code>GITVAULT_PASSWORD</code> also works. A locked vault never prompts: it fails with <code>E_LOCKED</code>.</p>
       <p>To limit a developer machine to one project, run <code>gitvault trust add . --env development</code> inside it. The device then unlocks by itself only in that folder.</p>
 
       <div class="next">

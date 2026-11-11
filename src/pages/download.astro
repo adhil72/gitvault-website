@@ -15,16 +15,16 @@ const needs = [
 ---
 <Base title="Download" current="">
   <section class="page-head wrap">
-    <h1 class="h1">Download Gitvault</h1>
+    <h1 class="h1" style="font-size:3.5rem">Download Gitvault</h1>
     <p class="lead">Version {site.version} · Free and open source. The desktop app includes the gitvault command-line tool.</p>
   </section>
   <section class="wrap">
-    <div class="grid c2">
+    <div class="cols c2">
       {platforms.map((p) => (
-        <div class="card platform">
+        <div class="card platform" style="padding:36px">
           <h2>{p.name}</h2>
-          <span class="mono muted small">{p.req}</span>
-          <a class="btn btn-primary btn-lg btn-block" href={downloadUrl(p.primary[1])}>{p.primary[0]}</a>
+          <span class="mono muted" style="font-size:15px">{p.req}</span>
+          <a class="btn btn-primary btn-block" style="padding:16px" href={downloadUrl(p.primary[1])}>{p.primary[0]}</a>
           <div class="alts">
             <a class="alt" href={downloadUrl('SHA256SUMS')}>Checksums<span>SHA256SUMS</span></a></div>
           <p class="note">{p.note}</p>
@@ -33,12 +33,12 @@ const needs = [
     </div>
   </section>
   <section class="section wrap" style="padding-bottom:0">
-    <div class="sec-head" style="margin-bottom:32px"><h2 class="h2 sm">What you need</h2></div>
-    <div class="grid c3">{needs.map(([t, b]) => <div class="card tight"><h3 class="h3 sm">{t}</h3><p>{b}</p></div>)}</div>
+    <div class="sec-head" style="margin-bottom:32px"><h2 class="h2" style="font-size:2rem">What you need</h2></div>
+    <div class="cells c3">{needs.map(([t, b]) => <div class="cell" style="padding:28px"><h3 class="h3" style="font-size:1.125rem">{t}</h3><p>{b}</p></div>)}</div>
   </section>
   <section class="section wrap">
-    <div class="split">
-      <div class="stack" style="gap:16px"><h2 class="h2 sm">Prefer to build it yourself?</h2><p class="lead">Gitvault is MIT licensed. You need Node 22+, pnpm, stable Rust and the Tauri system libraries.</p></div>
+    <div class="split" style="grid-template-columns:1fr 560px">
+      <div class="stack" style="gap:14px"><h2 class="h2" style="font-size:2rem">Prefer to build it yourself?</h2><p class="lead">Gitvault is MIT licensed. You need Node 22+, pnpm, stable Rust and the Tauri system libraries.</p></div>
       <pre class="code" set:html={`<span class="g">$</span> git clone ${site.repoUrl}.git
 <span class="g">$</span> pnpm install
 <span class="g">$</span> pnpm dev

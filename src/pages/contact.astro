@@ -8,24 +8,24 @@ const topics = ['Question', 'Bug', 'Idea', 'Security']
 <Base title="Contact" current="Contact" description="Questions, bugs or ideas for Gitvault? Send a message.">
   <section class="contact-hero wrap" id="intro">
     <h1 class="display">Say hello</h1>
-    <p class="lead">Questions, bugs, ideas. Tell us what you need and we will reply.</p>
+    <p class="lead" style="margin-top:20px;max-width:520px;margin-inline:auto">Questions, bugs, ideas. Tell us what you need and we will reply.</p>
   </section>
 
-  <section class="wrap" style="padding-bottom:clamp(72px,10vw,128px)" id="stage">
+  <section class="wrap" style="padding-bottom:128px" id="stage">
     <form id="contact-form" class="form-card" novalidate data-endpoint={site.contactEndpoint ?? ''} data-issues={site.issuesUrl} data-security={site.securityUrl}>
       <div class="field">
         <span class="lbl" id="topic-lbl">What is this about?</span>
         <div class="segmented" role="radiogroup" aria-labelledby="topic-lbl">
           {topics.map((t, i) => (<><input type="radio" name="topic" id={`t-${t}`} value={t} checked={i === 0} /><label for={`t-${t}`}>{t}</label></>))}
         </div>
-        <p class="hint" id="security-hint" hidden>Please report vulnerabilities privately. <a class="link" href={site.securityUrl}>Open a security advisory</a> instead of using this form.</p>
+        <p class="hint" id="security-hint" hidden>Please report vulnerabilities privately. <a class="green" href={site.securityUrl}>Open a security advisory</a> instead of using this form.</p>
       </div>
       <div class="row2">
         <div class="field"><label for="name">Name</label><input class="input" id="name" name="name" autocomplete="name" placeholder="Your name" /></div>
         <div class="field"><label for="email">Email</label><input class="input" id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required /><p class="hint" id="email-hint"></p></div>
       </div>
       <div class="field"><label for="message">Message</label><textarea class="input" id="message" name="message" placeholder="How can we help?" required></textarea><p class="hint" id="message-hint"></p></div>
-      <div class="stack" style="gap:16px;align-items:center">
+      <div class="stack" style="gap:14px;align-items:center">
         <button class="btn btn-primary btn-lg btn-block" type="submit" id="send">Send message <Icon name="arrow" size={18} sw={2.25} /></button>
         <p class="privacy"><Icon name="lock" size={14} />Please never include passwords or keys. We use your email only to reply.</p>
       </div>
@@ -33,9 +33,9 @@ const topics = ['Question', 'Bug', 'Idea', 'Security']
 
     <div class="sent" id="sent" role="status">
       <Icon name="check" size={72} sw={1.75} />
-      <h2 class="h1">Message sent</h2>
-      <p class="lead" id="sent-text">Thanks. We will get back to you soon.</p>
-      <div class="cta-row"><a class="btn" href={href('/')}>Back to home</a><a class="btn btn-ghost" href={href('/docs/')}>Read the docs →</a></div>
+      <h2 class="display" style="font-size:clamp(2.5rem,5vw,4rem)">Message sent</h2>
+      <p class="lead" id="sent-text" style="max-width:520px">Thanks. We will get back to you soon.</p>
+      <div class="cta-row"><a class="btn" href={href('/')}>Back to home</a><a class="btn" style="background:none;border-color:transparent;color:var(--fg-muted)" href={href('/docs/')}>Read the docs →</a></div>
     </div>
 
     <div class="quiet" id="alts">

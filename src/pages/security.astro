@@ -17,43 +17,43 @@ const rows = [
 ]
 ---
 <Base title="Security" current="Security">
-  <section class="page-head wrap">
-    <h1 class="h1" style="max-width:20ch">How Gitvault protects your secrets</h1>
-    <p class="lead">Everything sensitive is encrypted on your device before it reaches git or GitHub. Here is exactly what is stored, and how.</p>
+  <section class="page-head wrap" style="padding-bottom:64px">
+    <h1 class="h1" style="font-size:3.5rem;max-width:900px">How Gitvault protects your secrets</h1>
+    <p class="lead" style="max-width:700px">Everything sensitive is encrypted on your device before it reaches git or GitHub. Here is exactly what is stored, and how.</p>
   </section>
 
-  <section class="wrap page-sec">
-    <h2 class="h2 sm">What lives in your repository</h2>
-    <p class="lead" style="margin:12px 0 32px">The repository is created private and holds only ciphertext plus a small plaintext header.</p>
-    <div class="grid c2">
-      <div class="card tight"><h3 class="h3 accent">Encrypted</h3>
+  <section class="wrap" style="padding:56px 64px">
+    <h2 class="h2" style="font-size:2rem">What lives in your repository</h2>
+    <p class="lead" style="margin:10px 0 32px;max-width:760px">The repository is created private and holds only ciphertext plus a small plaintext header.</p>
+    <div class="cols c2">
+      <div class="card" style="padding:28px;gap:16px"><h3 class="h3 green">Encrypted</h3>
         <ul class="ticks" style="font-size:15px">{['Secret names and values', 'Notes, tags and environments', 'Expiry dates and favorites', 'Version numbers and timestamps'].map((i) => <li><Icon name="check" size={16} sw={2.25} />{i}</li>)}</ul></div>
-      <div class="card tight"><h3 class="h3 muted">Visible in the repository</h3>
-        <ul class="ticks" style="font-size:15px">{['How many secrets exist and when they changed', 'The vault name and key-derivation settings', 'Commit messages that contain ids only, never names'].map((i) => <li><span class="mono muted" aria-hidden="true">–</span>{i}</li>)}</ul></div>
+      <div class="card" style="padding:28px;gap:16px"><h3 class="h3 muted">Visible in the repository</h3>
+        <ul class="ticks" style="font-size:15px">{['How many secrets exist and when they changed', 'The vault name and key-derivation settings', 'Commit messages that contain ids only, never names'].map((i) => <li><span class="mono muted">–</span>{i}</li>)}</ul></div>
     </div>
-    <pre class="code" style="margin-top:16px"><span class="m">&lt;vault repo&gt;/</span>
+    <pre class="code" style="margin-top:24px"><span class="m">&lt;vault repo&gt;/</span>
 ├─ .gitvault/vault.json    plaintext header, no secrets
 └─ secrets/&lt;id&gt;.enc        one encrypted file per secret</pre>
   </section>
 
-  <section class="wrap page-sec">
-    <h2 class="h2 sm">The key hierarchy</h2>
-    <p class="lead" style="margin:12px 0 40px">Your secrets are never encrypted directly with your password. A random vault key does the work, and your password only wraps that key.</p>
-    <div class="flow">
+  <section class="wrap" style="padding:56px 64px">
+    <h2 class="h2" style="font-size:2rem">The key hierarchy</h2>
+    <p class="lead" style="margin:10px 0 40px;max-width:760px">Your secrets are never encrypted directly with your password. A random vault key does the work, and your password only wraps that key.</p>
+    <div class="flow" style="margin-bottom:0">
       {rows.map((r) => (
-        <div class="flow-row">{r.map(([a, b], i) => (<>{i > 0 && <Icon class="arrow" name="chevron" />}<div class="node"><b>{a}</b><span>{b}</span></div></>))}</div>
+        <div class="flow-row">{r.map(([a, b], i) => (<>{i > 0 && <span class="arrow">→</span>}<div class="node"><b>{a}</b><span>{b}</span></div></>))}</div>
       ))}
     </div>
   </section>
 
-  <section class="wrap page-sec">
-    <h2 class="h2 sm" style="margin-bottom:32px">Details that matter</h2>
-    <div class="rows">{details.map(([a, b]) => <div class="kv"><b>{a}</b><p>{b}</p></div>)}</div>
+  <section class="wrap" style="padding:56px 64px">
+    <h2 class="h2" style="font-size:2rem;margin-bottom:32px">Details that matter</h2>
+    <div class="cells rows">{details.map(([a, b]) => <div class="kv"><b>{a}</b><p>{b}</p></div>)}</div>
   </section>
 
-  <section class="wrap center page-sec" style="padding-bottom:clamp(72px,10vw,128px)">
-    <h2 class="h2 sm">Found a problem?</h2>
-    <p class="lead" style="margin:12px auto 24px">Report vulnerabilities privately through the security advisories on the GitHub repository, and please do not open a public issue.</p>
-    <a class="btn btn-lg" href={site.securityUrl}>Report a vulnerability</a>
+  <section class="wrap center" style="padding:56px 64px 112px">
+    <h2 class="h2" style="font-size:1.75rem">Found a problem?</h2>
+    <p class="lead" style="margin:12px auto 24px;max-width:620px">Report vulnerabilities privately through the security advisories on the GitHub repository, and please do not open a public issue.</p>
+    <a class="btn" href={site.securityUrl}>Report a vulnerability</a>
   </section>
 </Base>

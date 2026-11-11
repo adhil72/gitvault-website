@@ -13,7 +13,7 @@ const features = [
 ]
 
 const envs = [
-  { env: 'Development', color: 'var(--blue)', title: 'Local development', body: 'Trust a project folder once. Your laptop then unlocks silently inside it and nowhere else, limited to the environments you list.',
+  { env: 'Development', color: 'var(--accent)', title: 'Local development', body: 'Trust a project folder once. Your laptop then unlocks silently inside it and nowhere else, limited to the environments you list.',
     code: `<span class="g">$</span> gitvault trust add . --env development
 <span class="g">$</span> gitvault run --environment development \\
     -- npm run dev
@@ -21,14 +21,14 @@ const envs = [
 <span class="c">// Node.js: no .env file needed</span>
 <span class="g">import '@adhil72/gitvault/config'</span>`,
     points: ['Loads into process.env on the first line', 'Import an existing file with gitvault import env', 'Outside the trusted folder it stays locked'] },
-  { env: 'Staging', color: 'var(--amber)', title: 'CI and staging', body: 'Give every pipeline its own revocable device key and a read-only GitHub token. No master password in your CI settings.',
+  { env: 'Staging', color: 'var(--attention)', title: 'CI and staging', body: 'Give every pipeline its own revocable device key and a read-only GitHub token. No master password in your CI settings.',
     code: `<span class="g">$</span> gitvault device trust --name ci --export
 <span class="c"># save as GITVAULT_DEVICE_KEY</span>
 <span class="c"># and GITVAULT_TOKEN (read-only)</span>
 <span class="g">$</span> gitvault run --environment staging \\
     -- ./deploy.sh`,
     points: ['Device key is shown once, then lives in your CI', 'Render config files with gitvault inject', 'Revoke any device with gitvault device revoke'] },
-  { env: 'Production', color: 'var(--red)', title: 'Production servers', body: 'Servers get a device key and run your process with secrets injected. Values are never printed, and output can be redacted.',
+  { env: 'Production', color: 'var(--danger)', title: 'Production servers', body: 'Servers get a device key and run your process with secrets injected. Values are never printed, and output can be redacted.',
     code: `<span class="m">GITVAULT_DEVICE_KEY=••••••••
 GITVAULT_TOKEN=••••••••</span>
 
@@ -54,48 +54,43 @@ const steps = [
 <Base title={site.name} current="">
   <section class="hero">
     <div class="wrap">
-      <h1 class="display rise" style="--i:0">Secrets that live in your own GitHub repo</h1>
-      <p class="lead rise" style="--i:2">Gitvault is a desktop app and CLI that keeps end-to-end encrypted vaults in a private repository you control. No servers, no subscriptions, full git history for every change.</p>
-      <div class="cta-row rise" style="--i:3">
-        <a class="btn btn-primary btn-lg" href={href('/download/')}>Download for Windows</a>
-        <a class="btn btn-lg" href={href('/download/')}>Download for Ubuntu</a>
+      <h1 class="display">Secrets that live in<br /><span class="green">your own GitHub repo</span></h1>
+      <p class="lead">Gitvault is a desktop app and CLI that keeps end-to-end encrypted vaults in a private repository you control. No servers, no subscriptions, full git history for every change.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href={href('/download/')}>Download for Windows</a>
+        <a class="btn" href={href('/download/')}>Download for Ubuntu</a>
       </div>
-      <p class="meta rise" style="--i:3">Version <span class="num">{site.version}</span> · .exe · .deb · MIT licensed</p>
-      <div class="seal rise" style="--i:4" id="seal">
-        <div><span class="label">GitHub sees</span><code class="cipher" aria-label="Ciphertext">a1f9c2e07b42d8e5</code></div>
-        <span class="seal-mid"><Icon name="lock" size={18} sw={2} /></span>
-        <div><span class="label">You see</span><code class="plain" id="seal-plain" aria-label="sk_live_51Hx, hidden, 9aQz">sk_live_51Hx••••••9aQz</code></div>
-      </div>
-      <div class="shot rise" style="--i:5"><img src={href('/app-vault.png')} width="1400" height="875" alt="The Gitvault app showing a list of production secrets and the details of one secret" /></div>
+      <p class="meta">v{site.version} &nbsp;·&nbsp; .exe .deb &nbsp;·&nbsp; MIT licensed</p>
+      <div class="shot"><img src={href('/app-vault.png')} width="1400" height="875" alt="The Gitvault app showing a list of production secrets and the details of one secret" /></div>
     </div>
   </section>
 
   <section class="section" id="features">
     <div class="wrap">
       <div class="sec-head">
-        <h2 class="h2">Everything a secrets manager needs. Nothing you have to host.</h2>
+        <h2 class="h2">Everything a secrets manager needs.<br />Nothing you have to host.</h2>
         <p class="lead">Your vault is a folder of encrypted files in a private GitHub repo. Gitvault is just the client.</p>
       </div>
-      <div class="grid c3 keep2">
+      <div class="cells c3">
         {features.map((f) => (
-          <div class="card"><span class="icon-tile"><Icon name={f.icon} /></span><h3 class="h3">{f.title}</h3><p>{f.body}</p></div>
+          <div class="cell"><Icon class="icon" name={f.icon} /><h3 class="h3">{f.title}</h3><p>{f.body}</p></div>
         ))}
       </div>
     </div>
   </section>
 
-  <section class="section band" id="environments">
+  <section class="section" id="environments" style="padding-bottom:40px">
     <div class="wrap">
       <div class="sec-head">
-        <h2 class="h2">From localhost to production, one source of truth</h2>
+        <h2 class="h2">From localhost to production,<br />one source of truth</h2>
         <p class="lead">No .env files in your repo. The same vault feeds your laptop, your CI and your servers, and each one gets only the access it needs.</p>
       </div>
-      <div class="grid c3">
+      <div class="cols c3">
         {envs.map((e) => (
           <article class="card">
-            <span class="env" style={`color:${e.color}`}>{e.env}</span>
-            <h3 class="h2 sm">{e.title}</h3>
-            <p>{e.body}</p>
+            <span class="label" style={`color:${e.color}`}>{e.env}</span>
+            <h3 class="h2" style="font-size:1.625rem">{e.title}</h3>
+            <p class="muted" style="font-size:15px;line-height:1.6">{e.body}</p>
             <pre class="code" set:html={e.code} />
             <ul class="ticks">{e.points.map((p) => <li><Icon name="check" size={16} sw={2.25} />{p}</li>)}</ul>
           </article>
@@ -104,30 +99,30 @@ const steps = [
     </div>
   </section>
 
-  <section class="section" id="integrations">
+  <section class="section" id="integrations" style="padding-top:72px">
     <div class="wrap">
-      <div class="sec-head"><h2 class="h2">Plugs into how you already work</h2></div>
-      <div class="list">
-        {integrations.map(([t, b, c]) => <div class="list-row"><b>{t}</b><p class="small">{b}</p><code>{c}</code></div>)}
+      <h2 class="h2 center" style="font-size:1.75rem;margin-bottom:32px">Plugs into how you already work</h2>
+      <div class="cells c5">
+        {integrations.map(([t, b, c]) => <div class="cell sm"><h3 class="h3" style="font-size:1.0625rem">{t}</h3><p>{b}</p><code>{c}</code></div>)}
       </div>
     </div>
   </section>
 
-  <section class="section band" id="how">
+  <section class="section" id="how">
     <div class="wrap">
       <div class="sec-head"><h2 class="h2">Set up in about two minutes</h2><p class="lead">No account to create. You already have GitHub.</p></div>
-      <ol class="steps" style="list-style:none;margin:0;padding:0">
-        {steps.map(([n, t, b]) => <li class="step"><span class="n">{Number(n)}</span><h3 class="h3">{t}</h3><p>{b}</p></li>)}
-      </ol>
+      <div class="steps">
+        {steps.map(([n, t, b]) => <div class="step"><span class="n">{n}</span><h3 class="h3" style="font-size:1.375rem">{t}</h3><p>{b}</p></div>)}
+      </div>
     </div>
   </section>
 
   <section class="section" id="cli">
     <div class="wrap split">
       <div class="stack" style="gap:20px">
-        <h2 class="h2">The same vault, in your terminal</h2>
+        <h2 class="h2">The same vault,<br />in your terminal</h2>
         <p class="lead">Every feature in the app is a command. Inject secrets into a process without ever printing them, and use --json for scripts and CI.</p>
-        <ul class="ticks" style="margin-top:8px;font-size:1rem">
+        <ul class="ticks" style="font-size:16px;margin-top:8px">
           <li><Icon name="check" size={16} sw={2.25} />gitvault run injects secrets as environment variables</li>
           <li><Icon name="check" size={16} sw={2.25} />gitvault inject fills config templates, written as 0600</li>
           <li><Icon name="check" size={16} sw={2.25} />gitvault mcp exposes your vault to AI tools safely</li>
@@ -149,52 +144,33 @@ const steps = [
     </div>
   </section>
 
-  <section class="section band" id="security">
+  <section class="section" id="security">
     <div class="wrap">
       <div class="sec-head"><h2 class="h2">Zero-knowledge by design</h2><p class="lead">Your master password never leaves your device, and neither does the key that unlocks your secrets.</p></div>
       <div class="flow">
         <div class="flow-row">
-          <div class="node"><b>Master password</b><span>you type it</span></div><Icon class="arrow" name="chevron" />
-          <div class="node"><b>Argon2id</b><span>key derivation</span></div><Icon class="arrow" name="chevron" />
-          <div class="node"><b>Vault key</b><span>AES-256-GCM unwrap</span></div><Icon class="arrow" name="chevron" />
+          <div class="node"><b>Master password</b><span>you type it</span></div><span class="arrow">→</span>
+          <div class="node"><b>Argon2id</b><span>key derivation</span></div><span class="arrow">→</span>
+          <div class="node"><b>Vault key</b><span>AES-256-GCM unwrap</span></div><span class="arrow">→</span>
           <div class="node"><b>Secret files</b><span>fresh nonce per write</span></div>
         </div>
       </div>
       <div class="claims">
-        <div class="claim"><h3 class="h3 sm">A recovery key, shown once</h3><p>160 random bits that can unlock the vault if you forget your password. Gitvault cannot recover it for you.</p></div>
-        <div class="claim"><h3 class="h3 sm">Secrets stay out of logs</h3><p>Values are masked by default, auto-hide after reveal, and never appear in URLs, arguments or logs. Reveals are recorded in the audit log.</p></div>
-        <div class="claim"><h3 class="h3 sm">Open and auditable</h3><p>The vault format and every cryptographic choice are documented, and the code is MIT licensed.</p></div>
+        <div class="claim"><h3 class="h3" style="font-size:1.125rem">A recovery key, shown once</h3><p>160 random bits that can unlock the vault if you forget your password. Gitvault cannot recover it for you.</p></div>
+        <div class="claim"><h3 class="h3" style="font-size:1.125rem">Secrets stay out of logs</h3><p>Values are masked by default, auto-hide after reveal, and never appear in URLs, arguments or logs. Reveals are recorded in the audit log.</p></div>
+        <div class="claim"><h3 class="h3" style="font-size:1.125rem">Open and auditable</h3><p>The vault format and every cryptographic choice are documented, and the code is MIT licensed.</p></div>
       </div>
     </div>
   </section>
 
-  <section class="section">
+  <section class="section" style="padding-top:40px">
     <div class="wrap">
       <div class="cta-card">
-        <h2 class="h1">Take your secrets back</h2>
-        <p class="lead">Free and open source. Download Gitvault for your desktop and have your first vault ready in minutes.</p>
-        <div class="cta-row"><a class="btn btn-primary btn-lg" href={href('/download/')}>Download for Windows</a><a class="btn btn-lg" href={href('/download/')}>Download for Ubuntu</a></div>
-        <p class="meta">Windows 10 or later · Ubuntu 22.04 or later · Requires git</p>
+        <h2 class="h1" style="font-size:3rem">Take your secrets back</h2>
+        <p class="lead" style="max-width:600px">Free and open source. Download Gitvault for your desktop and have your first vault ready in minutes.</p>
+        <div class="cta-row"><a class="btn btn-primary" href={href('/download/')}>Download for Windows</a><a class="btn" href={href('/download/')}>Download for Ubuntu</a></div>
+        <p class="meta">Windows 10 or later &nbsp;·&nbsp; Ubuntu 22.04 or later &nbsp;·&nbsp; Requires git</p>
       </div>
     </div>
   </section>
 </Base>
-
-<script>
-  // Signature moment: the value resolves out of ciphertext once. Skipped under reduced motion;
-  // the final text is already in the markup, so nothing depends on this running.
-  const el = document.getElementById('seal-plain')
-  if (el && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    const final = el.textContent ?? ''
-    const glyphs = '0123456789abcdef'
-    const start = performance.now() + 700, dur = 1100
-    const frame = (now: number) => {
-      const t = Math.min(Math.max((now - start) / dur, 0), 1)
-      const keep = Math.floor(t * final.length)
-      el.textContent = final.slice(0, keep) + Array.from(final.slice(keep), (c) => (c === '•' || t >= 1 ? c : glyphs[(Math.random() * 16) | 0])).join('')
-      if (t < 1) requestAnimationFrame(frame)
-    }
-    el.textContent = Array.from(final, (c) => (c === '•' ? c : glyphs[(Math.random() * 16) | 0])).join('')
-    requestAnimationFrame(frame)
-  }
-</script>
