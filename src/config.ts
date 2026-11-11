@@ -1,7 +1,7 @@
 // Single place for links that change between environments.
 export const site = {
   name: 'Gitvault',
-  version: '0.1.1',
+  version: '0.1.2',
   repoUrl: 'https://github.com/adhil72/gitvault',
   // Releases are published in this public repo; the names below never change between versions.
   releasesUrl: 'https://github.com/adhil72/gitvault-website/releases/latest/download',
