@@ -54,14 +54,13 @@ const steps = [
 <Base title={site.name} current="">
   <section class="hero">
     <div class="wrap">
-      <a class="eyebrow rise" style="--i:0" href={href('/changelog/')}><i></i>Version <span class="num">{site.version}</span> · Free and open source</a>
-      <h1 class="display rise" style="--i:1">Secrets that live in your own GitHub repo</h1>
+      <h1 class="display rise" style="--i:0">Secrets that live in your own GitHub repo</h1>
       <p class="lead rise" style="--i:2">Gitvault is a desktop app and CLI that keeps end-to-end encrypted vaults in a private repository you control. No servers, no subscriptions, full git history for every change.</p>
       <div class="cta-row rise" style="--i:3">
         <a class="btn btn-primary btn-lg" href={href('/download/')}>Download for Windows</a>
         <a class="btn btn-lg" href={href('/download/')}>Download for Ubuntu</a>
       </div>
-      <p class="meta rise" style="--i:3">.exe · .deb · MIT licensed</p>
+      <p class="meta rise" style="--i:3">Version <span class="num">{site.version}</span> · .exe · .deb · MIT licensed</p>
       <div class="seal rise" style="--i:4" id="seal">
         <div><span class="label">GitHub sees</span><code class="cipher" aria-label="Ciphertext">a1f9c2e07b42d8e5</code></div>
         <span class="seal-mid"><Icon name="lock" size={18} sw={2} /></span>
@@ -94,7 +93,7 @@ const steps = [
       <div class="grid c3">
         {envs.map((e) => (
           <article class="card">
-            <span class="env" style={`color:${e.color}`}><i class="dot"></i>{e.env}</span>
+            <span class="env" style={`color:${e.color}`}>{e.env}</span>
             <h3 class="h2 sm">{e.title}</h3>
             <p>{e.body}</p>
             <pre class="code" set:html={e.code} />
