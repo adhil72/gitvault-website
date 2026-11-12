@@ -32,10 +32,12 @@ const channels = [
         <p class="hint" id="security-hint" hidden>Please report vulnerabilities privately. <a class="prose-link" href={site.securityUrl}>Open a security advisory</a> instead of using this form.</p>
       </div>
       <div class="row2">
-        <div class="field"><label for="name">Name</label><input class="input" id="name" name="name" autocomplete="name" placeholder="Your name" /></div>
+        <div class="field"><label for="name">Name</label><input class="input" id="name" name="name" autocomplete="name" placeholder="Your name" required /></div>
         <div class="field"><label for="email">Email</label><input class="input" id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required /><p class="hint" id="email-hint"></p></div>
       </div>
       <div class="field"><label for="message">Message</label><textarea class="input" id="message" name="message" placeholder="How can we help?" required></textarea><p class="hint" id="message-hint"></p></div>
+      <!-- spam trap: keep hidden -->
+      <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off" />
       <button class="btn btn-primary btn-block send" type="submit" id="send">Send message <Icon name="arrow" size={18} sw={2} /></button>
       <p class="privacy"><Icon name="lock" size={14} />Never include passwords or keys. We use your email only to reply.</p>
     </form>
@@ -130,6 +132,7 @@ const channels = [
     const data = new FormData(form)
     const mail = String(data.get('email') ?? '').trim()
     const body = String(data.get('message') ?? '').trim()
+    if (!String(data.get('name') ?? '').trim()) { $('name').focus(); return }
     if (!emailOk(mail)) { mark(email, $('email-hint'), 'Enter a valid email address', 'err'); email.focus(); return }
     if (!body) { mark(message, $('message-hint'), 'Tell us a little about what you need', 'err'); message.focus(); return }
     const topic = String(data.get('topic'))
@@ -141,7 +144,7 @@ const channels = [
       const btn = $('send') as HTMLButtonElement
       btn.disabled = true
       try {
-        const res = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify({ topic, name, email: mail, message: body }) })
+        const res = await fetch(endpoint, { method: 'POST', headers: { Accept: 'application/json' }, body: data })
         if (!res.ok) throw new Error(String(res.status))
         showSent(name, mail)
       } catch {

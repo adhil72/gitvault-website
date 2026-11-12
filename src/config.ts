@@ -11,8 +11,8 @@ export const site = {
   issuesUrl: 'https://github.com/adhil72/gitvault/issues/new',
   discussionsUrl: 'https://github.com/adhil72/gitvault/discussions',
   securityUrl: 'https://github.com/adhil72/gitvault/security/advisories/new',
-  // Optional form endpoint (e.g. a form service). Without it the contact form opens a prefilled GitHub issue.
-  contactEndpoint: import.meta.env.PUBLIC_CONTACT_ENDPOINT as string | undefined,
+  // Dropgram form endpoint for the contact form. PUBLIC_CONTACT_ENDPOINT overrides it; set it to an empty value to fall back to a prefilled GitHub issue.
+  contactEndpoint: (import.meta.env.PUBLIC_CONTACT_ENDPOINT as string | undefined) ?? 'https://dropgram.anokhagecw.workers.dev/f/fk_q4otLd4xQV9ajJoqcBCaGw',
 }
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '')
