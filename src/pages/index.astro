@@ -47,11 +47,11 @@ const plugins = [
 
 plugins: [<span class="g">gitvault()</span>]` },
   { icon: 'flutter', name: 'Flutter', pkg: 'gitvault_flutter', docs: '#flutter',
-    line: `<span class="g">$</span> dart run gitvault_flutter -- flutter run`,
-    body: 'Run and build through one wrapper. Debug runs get your development values, release builds get production, passed in as dart-define values.',
-    code: `<span class="g">$</span> dart run gitvault_flutter -- flutter run
+    line: `<span class="g">$</span> gitvault_flutter run`,
+    body: 'Put one word in front of your Flutter command. Debug runs get your development values, release builds get production, passed in as dart-define values.',
+    code: `<span class="g">$</span> gitvault_flutter run
 <span class="c"># development</span>
-<span class="g">$</span> dart run gitvault_flutter -- flutter build apk
+<span class="g">$</span> gitvault_flutter build apk
 <span class="c"># production</span>
 
 <span class="g">const</span> url = String.fromEnvironment(<span class="g">'FLUTTER_API_URL'</span>)` },

@@ -86,21 +86,17 @@ const sections = [
 {'}'})</pre>
 
       <h3 id="flutter" class="sub">Flutter</h3>
-      <p>Flutter apps run on phones and in browsers, where the <code>gitvault</code> CLI cannot run, so the values are added when you run or build. Put <code class="green">gitvault_flutter</code> in front of your Flutter command. It loads one environment and passes it to Flutter as <code>--dart-define</code> values. Add the package to <code>pubspec.yaml</code> from the repository (it is not on pub.dev yet):</p>
-      <pre class="code"><span class="c"># pubspec.yaml</span>
-dev_dependencies:
-  gitvault_flutter:
-    git:
-      url: https://github.com/adhil72/gitvault.git
-      path: packages/flutter</pre>
-      <p>The environment follows the build. A debug run gets <code>development</code>, a release build gets <code>production</code>, and a name you give wins over both:</p>
-      <pre class="code"><span class="g">$</span> dart run gitvault_flutter -- flutter run                <span class="c"># development</span>
-<span class="g">$</span> dart run gitvault_flutter -- flutter build apk          <span class="c"># production</span>
-<span class="g">$</span> dart run gitvault_flutter staging -- flutter build ios  <span class="c"># your choice</span></pre>
+      <p>Flutter apps run on phones and in browsers, where the <code>gitvault</code> CLI cannot run, so the values are added when you run or build. Install the <code class="green">gitvault_flutter</code> command once (it is not on pub.dev yet):</p>
+      <pre class="code"><span class="g">$</span> dart pub global activate --source git https://github.com/adhil72/gitvault.git --git-path packages/flutter</pre>
+      <p>Then say what you would tell Flutter, with <code>gitvault_flutter</code> in front. It loads one environment and passes it to Flutter as <code>--dart-define</code> values. The environment follows the build: a debug run gets <code>development</code>, a release build gets <code>production</code>, and <code>-e</code> picks another one:</p>
+      <pre class="code"><span class="g">$</span> gitvault_flutter run                   <span class="c"># development</span>
+<span class="g">$</span> gitvault_flutter run -d chrome         <span class="c"># Flutter's own options work as usual</span>
+<span class="g">$</span> gitvault_flutter build apk             <span class="c"># production</span>
+<span class="g">$</span> gitvault_flutter -e staging build ios  <span class="c"># your choice</span></pre>
       <p>Read the values in Dart as constants:</p>
       <pre class="code"><span class="g">const</span> apiUrl = String.fromEnvironment(<span class="g">'FLUTTER_API_URL'</span>);</pre>
-      <p>The order is: the name on the command line, then <code>GITVAULT_ENV</code>, then the build mode. <code>flutter run</code>, <code>flutter test</code> and <code>--debug</code> are debug. <code>flutter build</code>, <code>--release</code> and <code>--profile</code> are release. Change the two defaults with <code>--debug-env</code> and <code>--release-env</code>.</p>
-      <p>Everything passed to an app is compiled into it, so anyone who gets the app can read it. For that reason only variables that start with <code>FLUTTER_</code> are passed. Name the values that are safe to ship that way, and keep real server secrets out of client apps. <code>--prefix MY_</code> changes the prefix, and <code>--prefix ''</code> passes everything.</p>
+      <p>The order is: <code>-e</code> on the command line, then <code>GITVAULT_ENV</code>, then the build mode. <code>flutter run</code>, <code>flutter test</code> and <code>--debug</code> are debug. <code>flutter build</code>, <code>--release</code> and <code>--profile</code> are release. Change the two defaults with <code>--debug-env</code> and <code>--release-env</code>.</p>
+      <p>Everything passed to an app is compiled into it, so anyone who gets the app can read it. For that reason only variables that start with <code>FLUTTER_</code> are passed. Name the values that are safe to ship that way, and keep real server secrets out of client apps. <code>--prefix MY_</code> changes the prefix, and <code>--prefix ''</code> passes everything. Options of <code>gitvault_flutter</code> go before the Flutter command. To wrap another tool such as <code>fvm</code>, put it after <code>--</code>.</p>
       <p>Values travel in a private temporary file that is deleted when the command ends. They are never in an argument or an environment variable, and Flutter does not inherit your vault password or keys. The log shows only how many variables were loaded. The IDE's run button skips the wrapper, so start from a terminal.</p>
 
       <h3 id="other" class="sub">Other languages, scripts and tools</h3>
