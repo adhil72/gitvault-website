@@ -83,7 +83,7 @@ code, pre, .mono { font-family: var(--mono); }
 .card { background: var(--subtle); border: 1px solid var(--border); border-radius: 14px; padding: 32px; display: flex; flex-direction: column; gap: 20px; }
 .cols { display: grid; gap: 24px; }
 .cols.c2 { grid-template-columns: 1fr 1fr; }
-.cols.c3 { grid-template-columns: repeat(3, 1fr); }
+.cols.c3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .label { font: 500 12px var(--mono); letter-spacing: .08em; text-transform: uppercase; }
 .code { background: var(--inset); border: 1px solid var(--border-muted); border-radius: 8px; padding: 16px 18px; font: 12.5px/1.65 var(--mono); overflow-x: auto; white-space: pre; margin: 0; }
 .code .c { color: var(--fg-subtle); } .code .g { color: var(--success); } .code .m { color: var(--fg-muted); }
@@ -236,7 +236,17 @@ textarea.input { min-height: 150px; resize: vertical; }
 .more a { display: inline-flex; align-items: center; gap: 8px; }
 .more a:hover { text-decoration: underline; }
 @media (max-width: 1100px) { .split { gap: 40px; } }
+/* Supported plugins (hero) */
+.plugin-strip { margin-top: 40px; width: 100%; max-width: 1040px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.plugin-chips { width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.plugin-chip { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; text-align: left; background: var(--subtle); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; min-width: 0; }
+.plugin-chip svg { flex: none; }
+.plugin-chip > div { min-width: 0; width: 100%; }
+.plugin-chip b { display: block; font-size: 15px; margin-bottom: 8px; }
+.plugin-chip .code { padding: 10px 14px; max-width: 100%; box-sizing: border-box; white-space: pre-wrap; overflow-wrap: anywhere; }
+.plugin-head { display: flex; align-items: center; gap: 12px; }
 @media (max-width: 860px) {
+  .plugin-chips { grid-template-columns: 1fr; }
   .pipe { grid-template-columns: 1fr; }
   .pipe-arrow { flex-direction: row; justify-content: center; }
   .pipe-arrow svg { transform: rotate(90deg); }

@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro'
 import Icon from '../components/Icon.astro'
+import BrandIcon from '../components/BrandIcon.astro'
 import { site, href } from '../config'
 
 const vaultRows = ['DATABASE_URL', 'STRIPE_SECRET_KEY', 'OPENAI_API_KEY', 'JWT_SECRET']
@@ -15,7 +16,7 @@ const stored = [
 const loaders = [
   { label: 'Node.js', title: 'One import', body: 'Add one line at the top of your app. Your secrets are in process.env before anything else runs.',
     code: `<span class="c">// first line of your app</span>
-<span class="g">import '@adhil72/gitvault/config'</span>
+<span class="g">import '@adhil28/gitvault/config'</span>
 
 process.env.DATABASE_URL <span class="c">// ready</span>` },
   { label: 'Any language', title: 'One command', body: 'Start any program through Gitvault and it receives your secrets as environment variables.',
@@ -27,6 +28,33 @@ process.env.DATABASE_URL <span class="c">// ready</span>` },
 GITVAULT_DEVICE_KEY=••••••••</span>
 
 <span class="g">$</span> gitvault run -- node server.js` },
+]
+
+// Add an entry here to list a new plugin (and its logo in BrandIcon.astro). The hero strip and the
+// Plugins section both read this list. `line` is the single line that loads it.
+const plugins = [
+  { icon: 'node', name: 'Node.js', pkg: '@adhil28/gitvault', docs: '#node',
+    line: `<span class="g">import</span> '@adhil28/gitvault/config'`,
+    body: 'Load an environment into process.env at startup. Works with import and require, and ships its own TypeScript types.',
+    code: `<span class="g">$</span> npm install @adhil28/gitvault
+
+<span class="g">import</span> '@adhil28/gitvault/config'` },
+  { icon: 'vite', name: 'Vite', pkg: '@adhil28/gitvault/vite', docs: '#vite',
+    line: `plugins: [<span class="g">gitvault()</span>]`,
+    body: 'Pick the environment from the Vite mode. Only VITE_ values reach your browser code, everything else stays on the server.',
+    code: `<span class="c">// vite.config.ts</span>
+<span class="g">import</span> {gitvault} <span class="g">from</span> '@adhil28/gitvault/vite'
+
+plugins: [<span class="g">gitvault()</span>]` },
+  { icon: 'flutter', name: 'Flutter', pkg: 'gitvault_flutter', docs: '#flutter',
+    line: `<span class="g">$</span> dart run gitvault_flutter -- flutter run`,
+    body: 'Run and build through one wrapper. Debug runs get your development values, release builds get production, passed in as dart-define values.',
+    code: `<span class="g">$</span> dart run gitvault_flutter -- flutter run
+<span class="c"># development</span>
+<span class="g">$</span> dart run gitvault_flutter -- flutter build apk
+<span class="c"># production</span>
+
+<span class="g">const</span> url = String.fromEnvironment(<span class="g">'FLUTTER_API_URL'</span>)` },
 ]
 
 const steps = [
@@ -63,12 +91,24 @@ const claims = [
         <div class="pipe-arrow" aria-hidden="true"><Icon name="arrow" size={22} /><span>autoload</span></div>
         <div class="panel">
           <div class="panel-bar"><Icon name="code" size={16} />Your code</div>
-          <pre class="code" set:html={`<span class="g">import '@adhil72/gitvault/config'</span>
+          <pre class="code" set:html={`<span class="g">import '@adhil28/gitvault/config'</span>
 
 <span class="c">// that's it. your secrets are loaded.</span>
 connect(process.env.DATABASE_URL)
 stripe(process.env.STRIPE_SECRET_KEY)`} />
           <p class="panel-foot">No .env file · nothing to copy</p>
+        </div>
+      </div>
+
+      <div class="plugin-strip">
+        <span class="label muted">Supported plugins</span>
+        <div class="plugin-chips">
+          {plugins.map((p) => (
+            <div class="plugin-chip">
+              <BrandIcon name={p.icon} size={36} />
+              <div><b>{p.name}</b><pre class="code" set:html={p.line} /></div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
@@ -102,6 +142,27 @@ stripe(process.env.STRIPE_SECRET_KEY)`} />
             <h3 class="h2" style="font-size:1.625rem">{l.title}</h3>
             <p class="muted" style="font-size:15px;line-height:1.6">{l.body}</p>
             <pre class="code grow" set:html={l.code} />
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="plugins">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="label green">Plugins</span>
+        <h2 class="h2">Available for the tools you already use</h2>
+        <p class="lead">Official plugins load your secrets for you. More are on the way.</p>
+      </div>
+      <div class="cols c3">
+        {plugins.map((p) => (
+          <article class="card">
+            <div class="plugin-head"><BrandIcon name={p.icon} size={28} /><span class="label muted">{p.name}</span></div>
+            <h3 class="h2" style="font-size:1.625rem"><code class="green">{p.pkg}</code></h3>
+            <p class="muted" style="font-size:15px;line-height:1.6">{p.body}</p>
+            <pre class="code grow" set:html={p.code} />
+            <p class="more"><a href={`${href('/docs/')}${p.docs}`}>Read the docs <Icon name="arrow" size={16} /></a></p>
           </article>
         ))}
       </div>

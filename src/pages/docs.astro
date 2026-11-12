@@ -3,7 +3,7 @@ import Base from '../layouts/Base.astro'
 import { href } from '../config'
 
 const sections = [
-  ['install', 'Install'], ['signin', 'Sign in to GitHub'], ['vault', 'Create a vault'], ['secret', 'Add a secret and use it'], ['apps', 'Use it in your apps'], ['node', 'Node.js and TypeScript'], ['servers', 'Servers and CI'],
+  ['install', 'Install'], ['signin', 'Sign in to GitHub'], ['vault', 'Create a vault'], ['secret', 'Add a secret and use it'], ['apps', 'Use it in your apps'], ['node', 'Node.js and TypeScript'], ['vite', 'Vite'], ['flutter', 'Flutter'], ['servers', 'Servers and CI'],
 ]
 ---
 <Base title="Docs" current="Docs">
@@ -45,19 +45,15 @@ const sections = [
 <span class="g">$</span> gitvault sync now</pre>
 
       <h2 id="apps"><i>05</i>Use it in your apps</h2>
-      <p>Anything can run under the CLI: <code>gitvault run</code> injects an environment as variables and starts your command. Node.js apps can also load secrets in code, with no .env file in the project.</p>
+      <p>Anything can run under the CLI: <code>gitvault run</code> injects an environment as variables and starts your command. Node.js, Vite and Flutter projects can also load secrets for you, with no .env file in the project.</p>
 
       <h3 id="node" class="sub">Node.js and TypeScript</h3>
-      <p>The library is written in TypeScript, ships its own types, and works with both <code>import</code> and <code>require</code> on Node 18 or newer. It is published on GitHub Packages as <code class="green">@adhil72/gitvault</code>. Point the scope at GitHub's registry and sign in with a token that has <code>read:packages</code>:</p>
-      <pre class="code"><span class="c"># .npmrc</span>
-@adhil72:registry=https://npm.pkg.github.com
-//npm.pkg.github.com/:_authToken=&#36;&#123;NODE_AUTH_TOKEN&#125;
-
-<span class="g">$</span> npm install @adhil72/gitvault</pre>
+      <p>The library is written in TypeScript, ships its own types, and works with both <code>import</code> and <code>require</code> on Node 18 or newer. It is published on the public npm registry as <code class="green">@adhil28/gitvault</code>, so no token or <code>.npmrc</code> is needed:</p>
+      <pre class="code"><span class="g">$</span> npm install @adhil28/gitvault</pre>
       <p>Load one environment before anything else runs:</p>
-      <pre class="code"><span class="g">import '@adhil72/gitvault/config'</span> <span class="c">// uses GITVAULT_ENV, then NODE_ENV</span></pre>
+      <pre class="code"><span class="g">import '@adhil28/gitvault/config'</span> <span class="c">// uses GITVAULT_ENV, then NODE_ENV</span></pre>
       <p>Or call it yourself. It is synchronous, returns only the names it set (never values), and keeps variables that are already set unless you pass <code>override</code>:</p>
-      <pre class="code"><span class="g">import</span> {'{'} config, GitVaultError {'}'} <span class="g">from</span> '@adhil72/gitvault'
+      <pre class="code"><span class="g">import</span> {'{'} config, GitVaultError {'}'} <span class="g">from</span> '@adhil28/gitvault'
 
 <span class="g">try</span> {'{'}
   <span class="g">const</span> {'{'} environment, loaded {'}'} = config('production')
@@ -65,6 +61,47 @@ const sections = [
   <span class="c">// e.code: E_LOCKED, E_PERMISSION_DENIED, E_NOT_AUTHENTICATED, E_NOT_INSTALLED ...</span>
 {'}'}</pre>
       <p>The library asks the installed <code>gitvault</code> CLI, so the CLI must be on PATH (or set <code>GITVAULT_BIN</code>). Secrets are never logged or written to disk.</p>
+
+      <h3 id="vite" class="sub">Vite</h3>
+      <p>For Vite projects, add the plugin and drop the <code>.env</code> files. It loads one environment before Vite reads its own env, using the same <code>gitvault</code> CLI as the Node.js library, so it needs Node 18 or newer and Vite 5 or newer.</p>
+      <pre class="code"><span class="c">// vite.config.ts</span>
+<span class="g">import</span> {'{'} defineConfig {'}'} <span class="g">from</span> 'vite'
+<span class="g">import</span> {'{'} gitvault {'}'} <span class="g">from</span> '@adhil28/gitvault/vite'
+
+<span class="g">export default</span> defineConfig({'{'}
+  plugins: [gitvault()],
+{'}'})</pre>
+      <p>The environment is the one you pass (<code>gitvault({'{'} environment: 'staging' {'}'})</code>), then <code>GITVAULT_ENV</code>, then the Vite mode. <code>vite</code> uses <code>development</code>, <code>vite build</code> uses <code>production</code>, and <code>--mode staging</code> uses <code>staging</code>.</p>
+      <p>Vite only hands variables that start with <code>VITE_</code> to your browser code, as <code>import.meta.env.VITE_API_URL</code>. Every other secret stays on the server side of the build. Name only values that are safe to publish with <code>VITE_</code>, because anything behind that prefix ends up in the built app.</p>
+      <p>Variables already set in your shell win over the vault, and the vault wins over <code>.env</code> files. The plugin logs only how many variables it loaded, never names or values. If the CLI is missing or the vault is locked, the dev server stops with a clear error.</p>
+      <p>The plugin runs after <code>vite.config.ts</code> has been read, so the config file itself cannot see vault values. If it needs one (a proxy target, say), load the vault first and skip the plugin. Pick the environment from the mode:</p>
+      <pre class="code"><span class="g">import</span> {'{'} defineConfig {'}'} <span class="g">from</span> 'vite'
+<span class="g">import</span> {'{'} config {'}'} <span class="g">from</span> '@adhil28/gitvault'
+
+<span class="g">export default</span> defineConfig(({'{'} mode {'}'}) =&gt; {'{'}
+  config(mode === 'production' ? 'frontend-prod' : 'frontend-dev')
+  <span class="g">return</span> {'{'}
+    server: {'{'} proxy: {'{'} '/api': process.env.VITE_API_URL {'}'} {'}'},
+  {'}'}
+{'}'})</pre>
+
+      <h3 id="flutter" class="sub">Flutter</h3>
+      <p>Flutter apps run on phones and in browsers, where the <code>gitvault</code> CLI cannot run, so the values are added when you run or build. Put <code class="green">gitvault_flutter</code> in front of your Flutter command. It loads one environment and passes it to Flutter as <code>--dart-define</code> values. Add the package to <code>pubspec.yaml</code> from the repository (it is not on pub.dev yet):</p>
+      <pre class="code"><span class="c"># pubspec.yaml</span>
+dev_dependencies:
+  gitvault_flutter:
+    git:
+      url: https://github.com/adhil72/gitvault.git
+      path: packages/flutter</pre>
+      <p>The environment follows the build. A debug run gets <code>development</code>, a release build gets <code>production</code>, and a name you give wins over both:</p>
+      <pre class="code"><span class="g">$</span> dart run gitvault_flutter -- flutter run                <span class="c"># development</span>
+<span class="g">$</span> dart run gitvault_flutter -- flutter build apk          <span class="c"># production</span>
+<span class="g">$</span> dart run gitvault_flutter staging -- flutter build ios  <span class="c"># your choice</span></pre>
+      <p>Read the values in Dart as constants:</p>
+      <pre class="code"><span class="g">const</span> apiUrl = String.fromEnvironment(<span class="g">'FLUTTER_API_URL'</span>);</pre>
+      <p>The order is: the name on the command line, then <code>GITVAULT_ENV</code>, then the build mode. <code>flutter run</code>, <code>flutter test</code> and <code>--debug</code> are debug. <code>flutter build</code>, <code>--release</code> and <code>--profile</code> are release. Change the two defaults with <code>--debug-env</code> and <code>--release-env</code>.</p>
+      <p>Everything passed to an app is compiled into it, so anyone who gets the app can read it. For that reason only variables that start with <code>FLUTTER_</code> are passed. Name the values that are safe to ship that way, and keep real server secrets out of client apps. <code>--prefix MY_</code> changes the prefix, and <code>--prefix ''</code> passes everything.</p>
+      <p>Values travel in a private temporary file that is deleted when the command ends. They are never in an argument or an environment variable, and Flutter does not inherit your vault password or keys. The log shows only how many variables were loaded. The IDE's run button skips the wrapper, so start from a terminal.</p>
 
       <h3 id="other" class="sub">Other languages, scripts and tools</h3>
       <p>Use the CLI directly. Secrets are injected for that one process and never printed:</p>
