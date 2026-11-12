@@ -1,8 +1,15 @@
 ---
 import '../styles/global.css'
+import Icon from '../components/Icon.astro'
 import { site, nav, href } from '../config'
-const { title, description = 'Store your secrets encrypted in the cloud, in a private GitHub repo you own, and load them into your code with one line. No .env files.', current = '' } = Astro.props
-const full = title === site.name ? title : `${title} · ${site.name}`
+const { title, description = 'GitVault encrypts your API keys and passwords on your device, keeps them in a private GitHub repository you own, and loads them into your app with one line. No .env files.', current = '' } = Astro.props
+const full = title === site.name ? `${site.name} · Encrypted secrets in your own GitHub repo` : `${title} · ${site.name}`
+
+const footer = [
+  { title: 'Product', links: [['Download', href('/download/')], ['Changelog', href('/changelog/')], ['Security model', href('/security/')]] },
+  { title: 'Docs', links: [['Get started', href('/docs/')], ['Node.js', href('/docs/#node')], ['Vite', href('/docs/#vite')], ['Servers and CI', href('/docs/#servers')]] },
+  { title: 'Project', links: [['Source on GitHub', site.repoUrl], ['Report an issue', site.issuesUrl], ['Discussions', site.discussionsUrl], ['Contact', href('/contact/')]] },
+]
 ---
 <!doctype html>
 <html lang="en">
@@ -17,26 +24,91 @@ const full = title === site.name ? title : `${title} · ${site.name}`
     <link rel="icon" type="image/png" href={href('/logo.png')} />
   </head>
   <body>
+    <a class="skip" href="#main">Skip to content</a>
     <header class="nav">
-      <div class="wrap">
-        <a class="brand" href={href('/')}><img src={href('/logo.png')} alt="" width="32" height="32" />{site.name}</a>
+      <div class="wrap nav-row">
+        <a class="brand" href={href('/')}><img src={href('/logo.png')} alt="" width="28" height="28" />{site.name}</a>
         <nav class="nav-links" aria-label="Main">
           {nav.map((n) => <a href={href(n.path)} aria-current={current === n.label ? 'page' : undefined}>{n.label}</a>)}
         </nav>
         <div class="nav-right">
-          <a href={site.repoUrl}>GitHub</a>
+          <a class="nav-gh" href={site.repoUrl} aria-label="GitVault on GitHub"><Icon name="github" size={20} /></a>
           <a class="btn btn-primary btn-sm" href={href('/download/')}>Download</a>
+          <details class="nav-menu">
+            <summary aria-label="Menu"><Icon name="menu" size={22} /></summary>
+            <div class="nav-sheet">
+              {nav.map((n) => <a href={href(n.path)} aria-current={current === n.label ? 'page' : undefined}>{n.label}</a>)}
+              <a href={site.repoUrl}>GitHub</a>
+            </div>
+          </details>
         </div>
       </div>
     </header>
-    <main><slot /></main>
+    <main id="main"><slot /></main>
     <footer class="footer">
       <div class="wrap">
-        <div class="brand"><img src={href('/logo.png')} alt="" width="24" height="24" />{site.name} <small>© 2026 · MIT licensed</small></div>
-        <nav aria-label="Footer">
-          <a href={site.repoUrl}>GitHub</a><a href={href('/docs/')}>Docs</a><a href={href('/changelog/')}>Changelog</a><a href={href('/security/')}>Security</a><a href={href('/contact/')}>Contact</a>
-        </nav>
+        <div class="foot-grid">
+          <div class="foot-brand">
+            <a class="brand" href={href('/')}><img src={href('/logo.png')} alt="" width="28" height="28" />{site.name}</a>
+            <p>Encrypted secrets in a private GitHub repository you own. Free and open source.</p>
+          </div>
+          {footer.map((col) => (
+            <div class="foot-col">
+              <h2>{col.title}</h2>
+              <ul>{col.links.map(([label, url]) => <li><a href={url}>{label}</a></li>)}</ul>
+            </div>
+          ))}
+        </div>
+        <div class="foot-base">
+          <span>© 2026 GitVault · MIT licensed</span>
+          <span class="meta">v{site.version}</span>
+        </div>
       </div>
     </footer>
   </body>
 </html>
+
+<style>
+  .skip { position: absolute; left: 16px; top: -48px; z-index: 50; background: var(--ink); color: var(--paper); padding: 8px 14px; border-radius: 8px; font-weight: 600; }
+  .skip:focus { top: 12px; }
+
+  .nav { position: sticky; top: 0; z-index: 30; background: color-mix(in srgb, var(--paper) 82%, transparent); backdrop-filter: blur(16px) saturate(160%); border-bottom: 1px solid var(--rule); }
+  .nav-row { display: flex; align-items: center; gap: 40px; height: var(--nav-h); }
+  .brand { display: inline-flex; align-items: center; gap: 10px; font: 700 1.1875rem/1 var(--display); letter-spacing: -0.03em; }
+  .brand img { width: 28px; height: 28px; border-radius: 7px; }
+  .nav-links { display: flex; gap: 28px; }
+  .nav-links a { font-size: 0.9375rem; font-weight: 500; color: var(--ink-2); transition: color 0.15s; }
+  .nav-links a:hover, .nav-links a[aria-current='page'] { color: var(--ink); }
+  .nav-links a[aria-current='page'] { text-decoration: underline; text-decoration-color: var(--accent); text-decoration-thickness: 2px; text-underline-offset: 8px; }
+  .nav-right { margin-left: auto; display: flex; align-items: center; gap: 16px; }
+  .nav-gh { color: var(--ink-2); transition: color 0.15s; }
+  .nav-gh:hover { color: var(--ink); }
+
+  .nav-menu { display: none; position: relative; }
+  .nav-menu summary { list-style: none; cursor: pointer; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 8px; color: var(--ink); }
+  .nav-menu summary::-webkit-details-marker { display: none; }
+  .nav-menu[open] summary { background: var(--sunken); }
+  .nav-sheet { position: absolute; right: 0; top: calc(100% + 10px); width: min(260px, calc(100vw - 32px)); background: var(--surface); border: 1px solid var(--rule); border-radius: 14px; box-shadow: var(--shadow); padding: 8px; display: flex; flex-direction: column; }
+  .nav-sheet a { padding: 12px 14px; border-radius: 8px; font-weight: 500; }
+  .nav-sheet a:hover, .nav-sheet a[aria-current='page'] { background: var(--sunken); }
+
+  .footer { border-top: 1px solid var(--rule); background: var(--surface); padding-block: 64px 32px; }
+  .foot-grid { display: grid; grid-template-columns: 1.6fr repeat(3, 1fr); gap: 40px; }
+  .foot-brand p { margin-top: 16px; max-width: 280px; color: var(--ink-2); font-size: 0.9375rem; }
+  .foot-col h2 { font: 500 0.75rem/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 18px; }
+  .foot-col ul { display: flex; flex-direction: column; gap: 10px; font-size: 0.9375rem; }
+  .foot-col a { color: var(--ink-2); transition: color 0.15s; }
+  .foot-col a:hover { color: var(--ink); }
+  .foot-base { margin-top: 56px; padding-top: 24px; border-top: 1px solid var(--rule); display: flex; justify-content: space-between; gap: 16px; font-size: 0.875rem; color: var(--ink-3); }
+
+  @media (max-width: 860px) {
+    .nav-links, .nav-gh { display: none; }
+    .nav-menu { display: block; }
+    .nav-right { gap: 8px; }
+    .foot-grid { grid-template-columns: 1fr 1fr; }
+    .foot-brand { grid-column: 1 / -1; }
+    .foot-col ul { gap: 4px; }
+    .foot-col a { display: inline-block; padding-block: 6px; }
+  }
+  @media (prefers-reduced-transparency: reduce) { .nav { backdrop-filter: none; background: var(--paper); } }
+</style>

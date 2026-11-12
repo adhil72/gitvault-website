@@ -3,57 +3,132 @@ import Base from '../layouts/Base.astro'
 import Icon from '../components/Icon.astro'
 import { site } from '../config'
 
+const encrypted = ['Secret names and values', 'Notes, tags and environments', 'Expiry dates and favorites', 'Version numbers and timestamps']
+const visible = ['How many secrets exist and when they changed', 'The vault name and key-derivation settings', 'Commit messages, which contain ids only, never names']
+
+// Each chain reads left to right: input, how it is turned into a key, and what it unlocks.
+const chains = [
+  { label: 'Unlock with your password', nodes: [['Master password', 'you type it'], ['Argon2id', 'key derivation'], ['Key-encryption key', 'never stored'], ['Vault key', '32 random bytes']] },
+  { label: 'Unlock with your recovery key', nodes: [['Recovery key', '160 random bits'], ['HKDF-SHA256', 'key derivation'], ['Key-encryption key', 'never stored'], ['Vault key', 'same key, second lock']] },
+  { label: 'Encrypt each secret', nodes: [['Vault key', 'unlocked in memory'], ['AES-256-GCM', 'fresh 96-bit nonce'], ['secrets/<id>.enc', 'ciphertext on GitHub']] },
+]
+
 const details = [
-  ['Changing your password is cheap', 'Only the vault key is re-wrapped. No secret has to be re-encrypted.'],
-  ['Files are bound to their vault', 'The id of the vault and the secret is part of the authentication data, so a file copied or renamed elsewhere fails to decrypt.'],
-  ['Values stay hidden', 'Secrets are masked by default, auto-hide after you reveal them, and every reveal is recorded in the audit log.'],
+  ['Changing your password is cheap', 'Only the vault key is wrapped again. No secret has to be re-encrypted.'],
+  ['Files are bound to their vault', 'The vault id and secret id are part of the authenticated data, so a file copied or renamed elsewhere fails to decrypt.'],
+  ['Ids are checked when read', 'Ids from a cloned repository are validated on load, so a crafted header cannot point file paths outside the vault.'],
+  ['Values stay hidden', 'Secrets are masked by default, hide again after you reveal them, and every reveal is recorded in the audit log.'],
   ['Short-lived unlocks', 'The unlocked key is kept for an idle timeout (5 minutes by default), then the vault locks again.'],
   ['Revocable machine access', 'Servers and CI use their own named device keys with a read-only GitHub token. Revoke one without touching the others.'],
 ]
-const rows = [
-  [['Master password', 'you type it'], ['Argon2id', 'key derivation'], ['Key-encryption key', 'never stored'], ['Vault key', '32 random bytes']],
-  [['Recovery key', '160 random bits'], ['HKDF-SHA256', 'key derivation'], ['Key-encryption key', 'never stored'], ['Vault key', 'same key, second lock']],
-  [['Vault key', 'AES-256-GCM'], ['Fresh 96-bit nonce', 'every write'], ['secrets/<id>.enc', 'ciphertext']],
-]
 ---
-<Base title="Security" current="Security">
-  <section class="page-head wrap" style="padding-bottom:64px">
-    <h1 class="h1" style="font-size:3.5rem;max-width:900px">How Gitvault protects your secrets</h1>
-    <p class="lead" style="max-width:700px">Everything sensitive is encrypted on your device before it reaches git or GitHub. Here is exactly what is stored, and how.</p>
+<Base title="Security" current="Security" description="How GitVault encrypts your secrets on your device before anything reaches git or GitHub.">
+  <section class="wrap page-head">
+    <span class="eyebrow">Security model</span>
+    <h1 class="t-1">How GitVault protects your secrets</h1>
+    <p class="lead">Everything sensitive is encrypted on your device before it reaches git or GitHub. Here is exactly what is stored, and how.</p>
   </section>
 
-  <section class="wrap" style="padding:56px 64px">
-    <h2 class="h2" style="font-size:2rem">What lives in your repository</h2>
-    <p class="lead" style="margin:10px 0 32px;max-width:760px">The repository is created private and holds only ciphertext plus a small plaintext header.</p>
-    <div class="cols c2">
-      <div class="card" style="padding:28px;gap:16px"><h3 class="h3 green">Encrypted</h3>
-        <ul class="ticks" style="font-size:15px">{['Secret names and values', 'Notes, tags and environments', 'Expiry dates and favorites', 'Version numbers and timestamps'].map((i) => <li><Icon name="check" size={16} sw={2.25} />{i}</li>)}</ul></div>
-      <div class="card" style="padding:28px;gap:16px"><h3 class="h3 muted">Visible in the repository</h3>
-        <ul class="ticks" style="font-size:15px">{['How many secrets exist and when they changed', 'The vault name and key-derivation settings', 'Commit messages that contain ids only, never names'].map((i) => <li><span class="mono muted">–</span>{i}</li>)}</ul></div>
+  <section class="band">
+    <div class="wrap">
+      <div class="head">
+        <h2 class="t-2">What lives in your repository</h2>
+        <p class="lead">The repository is created private and holds only ciphertext and a small plain-text header.</p>
+      </div>
+      <div class="split3">
+        <div class="card">
+          <h3 class="t-3"><Icon name="lock" size={18} />Encrypted</h3>
+          <ul class="ticks">{encrypted.map((i) => <li><Icon name="check" size={16} sw={2.25} />{i}</li>)}</ul>
+        </div>
+        <div class="card">
+          <h3 class="t-3"><Icon name="eye" size={18} />Visible in the repository</h3>
+          <ul class="ticks plain">{visible.map((i) => <li><span>–</span>{i}</li>)}</ul>
+        </div>
+        <pre class="code tree"><span class="c">&lt;vault repo&gt;/</span>
+├─ .gitvault/
+│  └─ vault.json   <span class="c"># header, no secrets</span>
+└─ secrets/
+   ├─ 3f9a1c.enc   <span class="c"># one file</span>
+   └─ 8b02d7.enc   <span class="c"># per secret</span></pre>
+      </div>
     </div>
-    <pre class="code" style="margin-top:24px"><span class="m">&lt;vault repo&gt;/</span>
-├─ .gitvault/vault.json    plaintext header, no secrets
-└─ secrets/&lt;id&gt;.enc        one encrypted file per secret</pre>
   </section>
 
-  <section class="wrap" style="padding:56px 64px">
-    <h2 class="h2" style="font-size:2rem">The key hierarchy</h2>
-    <p class="lead" style="margin:10px 0 40px;max-width:760px">Your secrets are never encrypted directly with your password. A random vault key does the work, and your password only wraps that key.</p>
-    <div class="flow" style="margin-bottom:0">
-      {rows.map((r) => (
-        <div class="flow-row">{r.map(([a, b], i) => (<>{i > 0 && <span class="arrow">→</span>}<div class="node"><b>{a}</b><span>{b}</span></div></>))}</div>
-      ))}
+  <section class="band">
+    <div class="wrap">
+      <div class="head">
+        <h2 class="t-2">The key hierarchy</h2>
+        <p class="lead">Secrets are never encrypted directly with your password. A random vault key does the work, and your password only wraps that key.</p>
+      </div>
+      <div class="chains">
+        {chains.map((c) => (
+          <div class="chain">
+            <span class="eyebrow">{c.label}</span>
+            <ol>
+              {c.nodes.map(([a, b]) => <li><b>{a}</b><span>{b}</span></li>)}
+            </ol>
+          </div>
+        ))}
+      </div>
     </div>
   </section>
 
-  <section class="wrap" style="padding:56px 64px">
-    <h2 class="h2" style="font-size:2rem;margin-bottom:32px">Details that matter</h2>
-    <div class="cells rows">{details.map(([a, b]) => <div class="kv"><b>{a}</b><p>{b}</p></div>)}</div>
+  <section class="band">
+    <div class="wrap">
+      <h2 class="t-2 sec-title">Details that matter</h2>
+      <dl class="details">
+        {details.map(([a, b]) => <div><dt>{a}</dt><dd>{b}</dd></div>)}
+      </dl>
+    </div>
   </section>
 
-  <section class="wrap center" style="padding:56px 64px 112px">
-    <h2 class="h2" style="font-size:1.75rem">Found a problem?</h2>
-    <p class="lead" style="margin:12px auto 24px;max-width:620px">Report vulnerabilities privately through the security advisories on the GitHub repository, and please do not open a public issue.</p>
-    <a class="btn" href={site.securityUrl}>Report a vulnerability</a>
+  <section class="band">
+    <div class="wrap"><div class="report card">
+      <div>
+        <h2 class="t-2">Found a problem?</h2>
+        <p class="lead">Report vulnerabilities privately through a security advisory on GitHub. Please do not open a public issue.</p>
+      </div>
+      <a class="btn btn-primary" href={site.securityUrl}><Icon name="shield" size={18} />Report a vulnerability</a>
+    </div></div>
   </section>
 </Base>
+
+<style>
+  .split3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; align-items: stretch; }
+  .split3 .card { display: flex; flex-direction: column; gap: 20px; }
+  .split3 h3 { display: flex; align-items: center; gap: 10px; }
+  .split3 h3 svg { color: var(--ink-2); }
+  .ticks { font-size: 0.9375rem; }
+  .plain span { flex: none; width: 16px; color: var(--ink-3); text-align: center; }
+  .plain li { color: var(--ink-2); }
+  .tree { margin: 0; font-size: 0.8125rem; line-height: 1.8; padding: 28px; }
+
+  .chains { display: flex; flex-direction: column; gap: 32px; }
+  .chain .eyebrow { margin-bottom: 14px; color: var(--ink-3); }
+  .chain ol { display: flex; flex-wrap: wrap; gap: 12px 0; }
+  .chain li { display: flex; flex-direction: column; gap: 4px; padding: 14px 18px; background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; min-width: 180px; }
+  .chain li + li { margin-left: 40px; position: relative; }
+  .chain li + li::before { content: ''; position: absolute; left: -32px; top: 50%; width: 24px; height: 1px; background: var(--ink-3); }
+  .chain li + li::after { content: ''; position: absolute; left: -13px; top: calc(50% - 4px); border: 4px solid transparent; border-left: 6px solid var(--ink-3); }
+  .chain b { font-weight: 600; font-size: 0.9375rem; }
+  .chain span { font: 0.75rem var(--mono); color: var(--ink-3); }
+  .chain li:last-child { border-color: var(--ink-3); background: var(--sunken); }
+
+  .sec-title { margin-bottom: 32px; }
+  .details { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 56px; }
+  .details div { padding: 24px 0; border-top: 1px solid var(--rule); display: flex; flex-direction: column; gap: 6px; }
+  .details dt { font-weight: 600; font-size: 1.0625rem; }
+  .details dd { color: var(--ink-2); }
+
+  .report { display: flex; justify-content: space-between; align-items: center; gap: 32px; padding: clamp(28px, 5vw, 48px); }
+  .report .lead { margin-top: 12px; max-width: 560px; }
+
+  @media (max-width: 900px) {
+    .split3, .details { grid-template-columns: 1fr; }
+    .report { flex-direction: column; align-items: flex-start; }
+    .chain ol { flex-direction: column; }
+    .chain li + li { margin: 20px 0 0; }
+    .chain li + li::before { left: 24px; top: -18px; width: 1px; height: 16px; }
+    .chain li + li::after { left: 20px; top: -8px; border: 4px solid transparent; border-top: 6px solid var(--ink-3); }
+  }
+</style>

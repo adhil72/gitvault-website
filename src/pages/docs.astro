@@ -2,119 +2,195 @@
 import Base from '../layouts/Base.astro'
 import { href } from '../config'
 
-const sections = [
-  ['install', 'Install'], ['signin', 'Sign in to GitHub'], ['vault', 'Create a vault'], ['secret', 'Add a secret and use it'], ['apps', 'Use it in your apps'], ['node', 'Node.js and TypeScript'], ['vite', 'Vite'], ['flutter', 'Flutter'], ['servers', 'Servers and CI'],
+const groups = [
+  { title: 'Getting started', items: [['install', 'Install'], ['signin', 'Sign in to GitHub'], ['vault', 'Create a vault'], ['secret', 'Add a secret and use it']] },
+  { title: 'Use it in your apps', items: [['node', 'Node.js and TypeScript'], ['vite', 'Vite'], ['other', 'Other languages'], ['servers', 'Servers and CI']] },
 ]
 ---
-<Base title="Docs" current="Docs">
-  <div class="docs">
-    <aside class="side">
-      <div><h4>GETTING STARTED</h4>{sections.map(([id, t], i) => <a href={`#${id}`} aria-current={i === 0 ? 'true' : undefined}>{t}</a>)}</div>
-      <div><h4>REFERENCE</h4><a href={href('/security/')}>Security model</a><a href={href('/changelog/')}>Changelog</a><a href={href('/download/')}>Download</a></div>
+<Base title="Docs" current="Docs" description="Install GitVault, sign in with GitHub, store your first secret and load it into your app.">
+  <div class="wrap docs">
+    <aside class="side" aria-label="Docs">
+      <nav>
+        {groups.map((g) => (
+          <div class="side-group">
+            <h2>{g.title}</h2>
+            {g.items.map(([id, t]) => <a href={`#${id}`} data-spy={id}>{t}</a>)}
+          </div>
+        ))}
+        <div class="side-group">
+          <h2>Reference</h2>
+          <a href={href('/security/')}>Security model</a>
+          <a href={href('/changelog/')}>Changelog</a>
+          <a href={href('/download/')}>Download</a>
+        </div>
+      </nav>
     </aside>
+
     <article class="article">
-      <span class="crumb">Docs / Getting started</span>
-      <h1 class="h1" style="font-size:2.75rem">Get started</h1>
-      <p class="lead" style="max-width:640px">Install Gitvault, sign in with GitHub and store your first secret. It takes about two minutes, and the desktop app and the CLI use the same vault.</p>
+      <header>
+        <span class="eyebrow">Docs</span>
+        <h1 class="t-1">Get started</h1>
+        <p class="lead">Install GitVault, sign in with GitHub and store your first secret. It takes about two minutes, and the desktop app and the CLI use the same vault.</p>
+        <details class="mobile-toc">
+          <summary>On this page</summary>
+          {groups.flatMap((g) => g.items).map(([id, t]) => <a href={`#${id}`}>{t}</a>)}
+        </details>
+      </header>
 
-      <h2 id="install"><i>01</i>Install</h2>
-      <p>Download the installer for Windows or Ubuntu from the <a class="green" href={href('/download/')}>download page</a>. Gitvault needs git on your PATH.</p>
+      <section id="install">
+        <h2 class="t-2">Install</h2>
+        <p>Download the installer for Windows or Ubuntu from the <a class="prose-link" href={href('/download/')}>download page</a>, or install with apt on Ubuntu. GitVault needs git on your PATH.</p>
+      </section>
 
-      <h2 id="signin"><i>02</i>Sign in to GitHub</h2>
-      <p>Pick whichever fits. The GitHub CLI route needs no setup if you already use gh.</p>
-      <div>
-        <div class="opt"><b>GitHub CLI</b><p>Run gh auth login once, then choose "Continue with GitHub CLI" in the app.</p></div>
-        <div class="opt"><b>Personal access token</b><p>Create a token with the repo scope and paste it into the app or pipe it to the CLI.</p></div>
-        <div class="opt"><b>Device flow</b><p>Sign in from your browser. Needs an OAuth app with Device Flow enabled.</p></div>
-      </div>
+      <section id="signin">
+        <h2 class="t-2">Sign in to GitHub</h2>
+        <p>Pick whichever fits. The GitHub CLI route needs no setup if you already use <code>gh</code>.</p>
+        <dl class="options">
+          <div><dt>GitHub CLI</dt><dd>Run <code>gh auth login</code> once, then choose "Continue with GitHub CLI" in the app.</dd></div>
+          <div><dt>Personal access token</dt><dd>Create a token with the <code>repo</code> scope and paste it into the app or pipe it to the CLI.</dd></div>
+          <div><dt>Device flow</dt><dd>Sign in from your browser. Needs an OAuth app with Device Flow enabled.</dd></div>
+        </dl>
+      </section>
 
-      <h2 id="vault"><i>03</i>Create a vault</h2>
-      <p>A vault is a private GitHub repository holding only encrypted files. Choose a master password and save the recovery key shown once.</p>
-      <pre class="code"><span class="g">$</span> gitvault auth login --from-gh
-<span class="g">$</span> gitvault vault create --name Personal
+      <section id="vault">
+        <h2 class="t-2">Create a vault</h2>
+        <p>A vault is a private GitHub repository holding only encrypted files. Choose a master password and save the recovery key that is shown once.</p>
+        <pre class="code"><span class="p">$</span> gitvault auth login --from-gh
+<span class="p">$</span> gitvault vault create --name Personal
 <span class="c"># prompts for a master password and prints your recovery key</span></pre>
-      <div class="callout"><b>Keep your recovery key safe</b><p>It is the only way back in if you forget your master password. Gitvault cannot recover it for you.</p></div>
+        <div class="callout"><b>Keep your recovery key safe</b><p>It is the only way back in if you forget your master password. GitVault cannot recover it for you.</p></div>
+      </section>
 
-      <h2 id="secret"><i>04</i>Add a secret and use it</h2>
-      <p>Add secrets in the app, or from the terminal. The value comes from stdin or a hidden prompt, never from an argument.</p>
-      <pre class="code"><span class="g">$</span> echo -n "sk_live_…" | gitvault secret add STRIPE_KEY \
+      <section id="secret">
+        <h2 class="t-2">Add a secret and use it</h2>
+        <p>Add secrets in the app, or from the terminal. The value comes from stdin or a hidden prompt, never from an argument.</p>
+        <pre class="code"><span class="p">$</span> echo -n "sk_live_…" | gitvault secret add STRIPE_KEY \
     --environment production --value-stdin
-<span class="g">$</span> gitvault secret list
-<span class="g">$</span> gitvault run --environment production -- ./deploy.sh
+<span class="p">$</span> gitvault secret list
+<span class="p">$</span> gitvault run --environment production -- ./deploy.sh
 <span class="c"># secrets injected as environment variables, never printed</span>
-<span class="g">$</span> gitvault sync now</pre>
+<span class="p">$</span> gitvault sync now</pre>
+        <p>Anything can run under the CLI: <code>gitvault run</code> injects an environment as variables and starts your command. Node.js and Vite projects can also load secrets for you, with no .env file in the project.</p>
+      </section>
 
-      <h2 id="apps"><i>05</i>Use it in your apps</h2>
-      <p>Anything can run under the CLI: <code>gitvault run</code> injects an environment as variables and starts your command. Node.js, Vite and Flutter projects can also load secrets for you, with no .env file in the project.</p>
+      <section id="node">
+        <h2 class="t-2">Node.js and TypeScript</h2>
+        <p>The library is written in TypeScript, ships its own types, and works with both <code>import</code> and <code>require</code> on Node 18 or newer. It is published on the public npm registry as <code>@adhil28/gitvault</code>, so no token or <code>.npmrc</code> is needed:</p>
+        <pre class="code"><span class="p">$</span> npm install @adhil28/gitvault</pre>
+        <p>Load one environment before anything else runs:</p>
+        <pre class="code"><span class="k">import</span> <span class="s">'@adhil28/gitvault/config'</span> <span class="c">// uses GITVAULT_ENV, then NODE_ENV</span></pre>
+        <p>Or call it yourself. It is synchronous, returns only the names it set (never values), and keeps variables that are already set unless you pass <code>override</code>:</p>
+        <pre class="code"><span class="k">import</span> {'{'} config, GitVaultError {'}'} <span class="k">from</span> <span class="s">'@adhil28/gitvault'</span>
 
-      <h3 id="node" class="sub">Node.js and TypeScript</h3>
-      <p>The library is written in TypeScript, ships its own types, and works with both <code>import</code> and <code>require</code> on Node 18 or newer. It is published on the public npm registry as <code class="green">@adhil28/gitvault</code>, so no token or <code>.npmrc</code> is needed:</p>
-      <pre class="code"><span class="g">$</span> npm install @adhil28/gitvault</pre>
-      <p>Load one environment before anything else runs:</p>
-      <pre class="code"><span class="g">import '@adhil28/gitvault/config'</span> <span class="c">// uses GITVAULT_ENV, then NODE_ENV</span></pre>
-      <p>Or call it yourself. It is synchronous, returns only the names it set (never values), and keeps variables that are already set unless you pass <code>override</code>:</p>
-      <pre class="code"><span class="g">import</span> {'{'} config, GitVaultError {'}'} <span class="g">from</span> '@adhil28/gitvault'
-
-<span class="g">try</span> {'{'}
-  <span class="g">const</span> {'{'} environment, loaded {'}'} = config('production')
-{'}'} <span class="g">catch</span> (e) {'{'}
+<span class="k">try</span> {'{'}
+  <span class="k">const</span> {'{'} environment, loaded {'}'} = config(<span class="s">'production'</span>)
+{'}'} <span class="k">catch</span> (e) {'{'}
   <span class="c">// e.code: E_LOCKED, E_PERMISSION_DENIED, E_NOT_AUTHENTICATED, E_NOT_INSTALLED ...</span>
 {'}'}</pre>
-      <p>The library asks the installed <code>gitvault</code> CLI, so the CLI must be on PATH (or set <code>GITVAULT_BIN</code>). Secrets are never logged or written to disk.</p>
+        <p>The library asks the installed <code>gitvault</code> CLI, so the CLI must be on PATH (or set <code>GITVAULT_BIN</code>). Secrets are never logged or written to disk.</p>
+      </section>
 
-      <h3 id="vite" class="sub">Vite</h3>
-      <p>For Vite projects, add the plugin and drop the <code>.env</code> files. It loads one environment before Vite reads its own env, using the same <code>gitvault</code> CLI as the Node.js library, so it needs Node 18 or newer and Vite 5 or newer.</p>
-      <pre class="code"><span class="c">// vite.config.ts</span>
-<span class="g">import</span> {'{'} defineConfig {'}'} <span class="g">from</span> 'vite'
-<span class="g">import</span> {'{'} gitvault {'}'} <span class="g">from</span> '@adhil28/gitvault/vite'
+      <section id="vite">
+        <h2 class="t-2">Vite</h2>
+        <p>For Vite projects, add the plugin and drop the <code>.env</code> files. It loads one environment before Vite reads its own env, using the same <code>gitvault</code> CLI as the Node.js library, so it needs Node 18 or newer and Vite 5 or newer.</p>
+        <pre class="code"><span class="c">// vite.config.ts</span>
+<span class="k">import</span> {'{'} defineConfig {'}'} <span class="k">from</span> <span class="s">'vite'</span>
+<span class="k">import</span> {'{'} gitvault {'}'} <span class="k">from</span> <span class="s">'@adhil28/gitvault/vite'</span>
 
-<span class="g">export default</span> defineConfig({'{'}
+<span class="k">export default</span> defineConfig({'{'}
   plugins: [gitvault()],
 {'}'})</pre>
-      <p>The environment is the one you pass (<code>gitvault({'{'} environment: 'staging' {'}'})</code>), then <code>GITVAULT_ENV</code>, then the Vite mode. <code>vite</code> uses <code>development</code>, <code>vite build</code> uses <code>production</code>, and <code>--mode staging</code> uses <code>staging</code>.</p>
-      <p>Vite only hands variables that start with <code>VITE_</code> to your browser code, as <code>import.meta.env.VITE_API_URL</code>. Every other secret stays on the server side of the build. Name only values that are safe to publish with <code>VITE_</code>, because anything behind that prefix ends up in the built app.</p>
-      <p>Variables already set in your shell win over the vault, and the vault wins over <code>.env</code> files. The plugin logs only how many variables it loaded, never names or values. If the CLI is missing or the vault is locked, the dev server stops with a clear error.</p>
-      <p>The plugin runs after <code>vite.config.ts</code> has been read, so the config file itself cannot see vault values. If it needs one (a proxy target, say), load the vault first and skip the plugin. Pick the environment from the mode:</p>
-      <pre class="code"><span class="g">import</span> {'{'} defineConfig {'}'} <span class="g">from</span> 'vite'
-<span class="g">import</span> {'{'} config {'}'} <span class="g">from</span> '@adhil28/gitvault'
+        <p>The environment is the one you pass (<code>gitvault({'{'} environment: 'staging' {'}'})</code>), then <code>GITVAULT_ENV</code>, then the Vite mode. <code>vite</code> uses <code>development</code>, <code>vite build</code> uses <code>production</code>, and <code>--mode staging</code> uses <code>staging</code>.</p>
+        <div class="callout"><b>Only VITE_ values reach the browser</b><p>Vite hands variables that start with <code>VITE_</code> to your browser code, as <code>import.meta.env.VITE_API_URL</code>. Anything behind that prefix ends up in the built app, so give it only to values that are safe to publish.</p></div>
+        <p>Variables already set in your shell win over the vault, and the vault wins over <code>.env</code> files. The plugin logs only how many variables it loaded, never names or values. If the CLI is missing or the vault is locked, the dev server stops with a clear error.</p>
+        <p>The plugin runs after <code>vite.config.ts</code> has been read, so the config file itself cannot see vault values. If it needs one (a proxy target, say), load the vault first and skip the plugin. Pick the environment from the mode:</p>
+        <pre class="code"><span class="k">import</span> {'{'} defineConfig {'}'} <span class="k">from</span> <span class="s">'vite'</span>
+<span class="k">import</span> {'{'} config {'}'} <span class="k">from</span> <span class="s">'@adhil28/gitvault'</span>
 
-<span class="g">export default</span> defineConfig(({'{'} mode {'}'}) =&gt; {'{'}
-  config(mode === 'production' ? 'frontend-prod' : 'frontend-dev')
-  <span class="g">return</span> {'{'}
-    server: {'{'} proxy: {'{'} '/api': process.env.VITE_API_URL {'}'} {'}'},
+<span class="k">export default</span> defineConfig(({'{'} mode {'}'}) =&gt; {'{'}
+  config(mode === <span class="s">'production'</span> ? <span class="s">'frontend-prod'</span> : <span class="s">'frontend-dev'</span>)
+  <span class="k">return</span> {'{'}
+    server: {'{'} proxy: {'{'} <span class="s">'/api'</span>: process.env.VITE_API_URL {'}'} {'}'},
   {'}'}
 {'}'})</pre>
+      </section>
 
-      <h3 id="flutter" class="sub">Flutter</h3>
-      <p>Flutter apps run on phones and in browsers, where the <code>gitvault</code> CLI cannot run, so the values are added when you run or build. Install the <code class="green">gitvault_flutter</code> command once (it is not on pub.dev yet):</p>
-      <pre class="code"><span class="g">$</span> dart pub global activate --source git https://github.com/adhil72/gitvault.git --git-path packages/flutter</pre>
-      <p>Then say what you would tell Flutter, with <code>gitvault_flutter</code> in front. It loads one environment and passes it to Flutter as <code>--dart-define</code> values. The environment follows the build: a debug run gets <code>development</code>, a release build gets <code>production</code>, and <code>-e</code> picks another one:</p>
-      <pre class="code"><span class="g">$</span> gitvault_flutter run                   <span class="c"># development</span>
-<span class="g">$</span> gitvault_flutter run -d chrome         <span class="c"># Flutter's own options work as usual</span>
-<span class="g">$</span> gitvault_flutter build apk             <span class="c"># production</span>
-<span class="g">$</span> gitvault_flutter -e staging build ios  <span class="c"># your choice</span></pre>
-      <p>Read the values in Dart as constants:</p>
-      <pre class="code"><span class="g">const</span> apiUrl = String.fromEnvironment(<span class="g">'FLUTTER_API_URL'</span>);</pre>
-      <p>The order is: <code>-e</code> on the command line, then <code>GITVAULT_ENV</code>, then the build mode. <code>flutter run</code>, <code>flutter test</code> and <code>--debug</code> are debug. <code>flutter build</code>, <code>--release</code> and <code>--profile</code> are release. Change the two defaults with <code>--debug-env</code> and <code>--release-env</code>.</p>
-      <p>Everything passed to an app is compiled into it, so anyone who gets the app can read it. For that reason only variables that start with <code>FLUTTER_</code> are passed. Name the values that are safe to ship that way, and keep real server secrets out of client apps. <code>--prefix MY_</code> changes the prefix, and <code>--prefix ''</code> passes everything. Options of <code>gitvault_flutter</code> go before the Flutter command. To wrap another tool such as <code>fvm</code>, put it after <code>--</code>.</p>
-      <p>Values travel in a private temporary file that is deleted when the command ends. They are never in an argument or an environment variable, and Flutter does not inherit your vault password or keys. The log shows only how many variables were loaded. The IDE's run button skips the wrapper, so start from a terminal.</p>
+      <section id="other">
+        <h2 class="t-2">Other languages, scripts and tools</h2>
+        <p>Use the CLI directly. Secrets are injected for that one process and never printed:</p>
+        <pre class="code"><span class="p">$</span> gitvault run --environment production -- python app.py
+<span class="p">$</span> gitvault run --environment development -- docker compose up
+<span class="p">$</span> gitvault --json env export production <span class="c"># machine-readable, for tooling</span></pre>
+        <p>AI tools can use secrets without seeing the values through the MCP server: <code>gitvault mcp</code>.</p>
+      </section>
 
-      <h3 id="other" class="sub">Other languages, scripts and tools</h3>
-      <p>Use the CLI directly. Secrets are injected for that one process and never printed:</p>
-      <pre class="code"><span class="g">$</span> gitvault run --environment production -- python app.py
-<span class="g">$</span> gitvault run --environment development -- docker compose up
-<span class="g">$</span> gitvault --json env export production <span class="c"># machine-readable, for tooling</span></pre>
-      <p>AI tools can use secrets without seeing the values through the MCP server: <code>gitvault mcp</code>.</p>
+      <section id="servers">
+        <h2 class="t-2">Servers and CI</h2>
+        <p>Nothing interactive is needed. Set <code>GITVAULT_TOKEN</code> (a read-only GitHub token for the vault repo) and <code>GITVAULT_DEVICE_KEY</code> (from <code>gitvault device trust --name prod-server --export</code>). Both are removed from the process after use, and you can revoke a key any time with <code>gitvault device revoke</code>. <code>GITVAULT_PASSWORD</code> also works. A locked vault never prompts: it fails with <code>E_LOCKED</code>.</p>
+        <p>To limit a developer machine to one project, run <code>gitvault trust add . --env development</code> inside it. The device then unlocks by itself only in that folder.</p>
+      </section>
 
-      <h3 id="servers" class="sub">Servers and CI</h3>
-      <p>Nothing interactive is needed. Set <code class="green">GITVAULT_TOKEN</code> (a read-only GitHub token for the vault repo) and <code class="green">GITVAULT_DEVICE_KEY</code> (from <code>gitvault device trust --name prod-server --export</code>). Both are removed from the process after use, and you can revoke a key any time with <code>gitvault device revoke</code>. <code>GITVAULT_PASSWORD</code> also works. A locked vault never prompts: it fails with <code>E_LOCKED</code>.</p>
-      <p>To limit a developer machine to one project, run <code>gitvault trust add . --env development</code> inside it. The device then unlocks by itself only in that folder.</p>
-
-      <div class="next">
-        <a href={href('/security/')}><b>Security model →</b><span>How your secrets are encrypted and stored.</span></a>
-        <a href={href('/changelog/')}><b>Changelog →</b><span>What changed in each release.</span></a>
-      </div>
+      <nav class="next" aria-label="Next">
+        <a href={href('/security/')}><span>Next</span><b>Security model →</b></a>
+        <a href={href('/changelog/')}><span>See also</span><b>Changelog →</b></a>
+      </nav>
     </article>
-    <aside class="toc"><h4>ON THIS PAGE</h4>{sections.map(([id, t]) => <a href={`#${id}`}>{t}</a>)}</aside>
   </div>
 </Base>
+
+<script>
+  // Highlight the sidebar entry for the section being read.
+  const links = new Map([...document.querySelectorAll<HTMLAnchorElement>('[data-spy]')].map((a) => [a.dataset.spy, a]))
+  const observer = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (!e.isIntersecting) continue
+      links.forEach((a) => a.removeAttribute('aria-current'))
+      links.get(e.target.id)?.setAttribute('aria-current', 'true')
+    }
+  }, { rootMargin: '-20% 0px -70% 0px' })
+  links.forEach((_, id) => { const el = id && document.getElementById(id); if (el) observer.observe(el) })
+</script>
+
+<style>
+  .docs { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 64px; }
+  .side nav { position: sticky; top: var(--nav-h); max-height: calc(100vh - var(--nav-h)); overflow-y: auto; padding-block: 48px; display: flex; flex-direction: column; gap: 28px; }
+  .side-group { display: flex; flex-direction: column; }
+  .side-group h2 { font: 500 0.6875rem/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 10px; }
+  .side-group a { padding: 6px 12px; margin-left: -12px; border-left: 2px solid transparent; font-size: 0.90625rem; color: var(--ink-2); transition: color 0.15s; }
+  .side-group a:hover { color: var(--ink); }
+  .side-group a[aria-current] { color: var(--accent); border-left-color: var(--accent); font-weight: 600; }
+
+  .article { padding-block: 48px clamp(72px, 10vw, 120px); max-width: 760px; display: flex; flex-direction: column; gap: 56px; }
+  .article header { display: flex; flex-direction: column; gap: 16px; padding-bottom: 40px; border-bottom: 1px solid var(--rule); }
+  .article section { display: flex; flex-direction: column; gap: 18px; scroll-margin-top: calc(var(--nav-h) + 24px); }
+  .article .t-2 { font-size: clamp(1.5rem, 2.6vw, 1.875rem); }
+  .article p { line-height: 1.7; color: var(--ink-2); }
+  .article .code { font-size: 0.8125rem; }
+
+  .options { display: flex; flex-direction: column; border: 1px solid var(--rule); border-radius: 12px; background: var(--surface); }
+  .options div { padding: 16px 20px; display: grid; grid-template-columns: 200px 1fr; gap: 16px; }
+  .options div + div { border-top: 1px solid var(--rule); }
+  .options dt { font-weight: 600; }
+  .options dd { color: var(--ink-2); font-size: 0.9375rem; }
+
+  .callout { background: var(--warn-bg); border-left: 3px solid var(--warn); border-radius: 8px; padding: 16px 20px; display: flex; flex-direction: column; gap: 6px; }
+  .callout b { color: var(--warn); }
+  .callout p { font-size: 0.9375rem; }
+
+  .next { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding-top: 40px; border-top: 1px solid var(--rule); }
+  .next a { display: flex; flex-direction: column; gap: 4px; padding: 20px 22px; border: 1px solid var(--rule); border-radius: 12px; background: var(--surface); transition: border-color 0.15s; }
+  .next a:hover { border-color: var(--accent); }
+  .next span { font-size: 0.8125rem; color: var(--ink-3); }
+
+  .mobile-toc { display: none; border: 1px solid var(--rule); border-radius: 10px; background: var(--surface); margin-top: 8px; }
+  .mobile-toc summary { cursor: pointer; padding: 12px 16px; font-weight: 600; }
+  .mobile-toc a { display: block; padding: 8px 16px; color: var(--ink-2); border-top: 1px solid var(--rule); }
+
+  @media (max-width: 900px) {
+    .mobile-toc { display: block; }
+    .docs { grid-template-columns: 1fr; gap: 0; }
+    .side { display: none; }
+    .options div { grid-template-columns: 1fr; gap: 4px; }
+    .next { grid-template-columns: 1fr; }
+  }
+</style>

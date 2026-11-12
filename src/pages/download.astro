@@ -1,49 +1,106 @@
 ---
 import Base from '../layouts/Base.astro'
+import Icon from '../components/Icon.astro'
 import { site } from '../config'
 const downloadUrl = (name: string) => `${site.releasesUrl}/${name}`
 
 const platforms = [
-  { name: 'Windows', req: 'Windows 10 or later', primary: ['Download installer (.exe)', 'GitVault-setup.exe'], note: 'Requires git. Install Git for Windows if you do not have it yet.' },
-  { name: 'Ubuntu and Debian', req: 'Ubuntu 22.04 or later', primary: ['Download package (.deb)', 'GitVault.deb'], note: 'The .deb installs git and the GitHub CLI for you.' },
+  { name: 'Windows', req: 'Windows 10 or later', file: 'GitVault-setup.exe', label: 'Download for Windows', kind: '.exe installer', note: 'Needs git. Install Git for Windows first if you do not have it.' },
+  { name: 'Ubuntu and Debian', req: 'Ubuntu 22.04 or later', file: 'GitVault.deb', label: 'Download for Ubuntu', kind: '.deb package', note: 'Installs git and the GitHub CLI for you. Or use apt below to get updates.' },
 ]
 const needs = [
-  ['A GitHub account', 'Your vault is stored in a private repository in your account. Sign in with the GitHub CLI, a personal access token or device flow.'],
-  ['git on your PATH', 'Gitvault uses git for history and sync, so every change is a commit you can inspect.'],
-  ['A master password', 'It never leaves your device. You also get a recovery key once, so keep it somewhere safe.'],
+  { title: 'A GitHub account', body: 'Your vault is a private repository in your account. Sign in with the GitHub CLI, a personal access token or the device flow.' },
+  { title: 'git on your PATH', body: 'GitVault uses git for history and sync, so every change is a commit you can inspect.' },
+  { title: 'A master password', body: 'It never leaves your device. You also get a recovery key once, so keep it somewhere safe.' },
 ]
+const repo = 'https://github.com/adhil72/gitvault-website/releases/latest/download'
 ---
-<Base title="Download" current="">
-  <section class="page-head wrap">
-    <h1 class="h1" style="font-size:3.5rem">Download Gitvault</h1>
-    <p class="lead">Version {site.version} · Free and open source. The desktop app includes the gitvault command-line tool.</p>
+<Base title="Download" description="Download GitVault for Windows or Ubuntu. The desktop app includes the gitvault command-line tool.">
+  <section class="wrap page-head">
+    <span class="eyebrow">Download · v{site.version}</span>
+    <h1 class="t-1">Get GitVault</h1>
+    <p class="lead">Free and open source. The desktop app includes the <code>gitvault</code> command, so terminals and the Node.js library work right after installing.</p>
   </section>
+
   <section class="wrap">
-    <div class="cols c2">
+    <div class="platforms">
       {platforms.map((p) => (
-        <div class="card platform" style="padding:36px">
-          <h2>{p.name}</h2>
-          <span class="mono muted" style="font-size:15px">{p.req}</span>
-          <a class="btn btn-primary btn-block" style="padding:16px" href={downloadUrl(p.primary[1])}>{p.primary[0]}</a>
-          <div class="alts">
-            <a class="alt" href={downloadUrl('SHA256SUMS')}>Checksums<span>SHA256SUMS</span></a></div>
+        <article class="card platform">
+          <div>
+            <h2 class="t-2">{p.name}</h2>
+            <p class="meta">{p.req} · {p.kind}</p>
+          </div>
+          <a class="btn btn-primary btn-block" href={downloadUrl(p.file)}><Icon name="download" size={18} sw={2} />{p.label}</a>
           <p class="note">{p.note}</p>
-        </div>
+        </article>
       ))}
     </div>
+    <p class="verify"><Icon name="shield" size={16} />Verify a download with <code>sha256sum -c SHA256SUMS --ignore-missing</code> · <a class="prose-link" href={downloadUrl('SHA256SUMS')}>SHA256SUMS</a> · <a class="prose-link" href={site.releasesPage}>All releases</a></p>
   </section>
-  <section class="section wrap" style="padding-bottom:0">
-    <div class="sec-head" style="margin-bottom:32px"><h2 class="h2" style="font-size:2rem">What you need</h2></div>
-    <div class="cells c3">{needs.map(([t, b]) => <div class="cell" style="padding:28px"><h3 class="h3" style="font-size:1.125rem">{t}</h3><p>{b}</p></div>)}</div>
+
+  <section class="band" id="apt">
+    <div class="wrap split split-wide">
+      <div>
+        <span class="eyebrow">Ubuntu and Debian</span>
+        <h2 class="t-2">Install and update with apt</h2>
+        <p class="lead">Each release publishes a GPG-signed apt repository, so <code>apt upgrade</code> keeps GitVault current and checks the signature every time.</p>
+        <p class="muted small">Before trusting the key, check that <code>gpg --show-keys --fingerprint</code> on the <a class="prose-link" href={`${repo}/gitvault-archive-keyring.asc`}>armored key</a> prints:</p>
+        <code class="fpr">2F22 86FD 69D5 C056 80FC  12BF BCCE 9E57 C812 62F0</code>
+      </div>
+      <pre class="code" set:html={`<span class="p">$</span> sudo curl -fsSL ${repo}/gitvault-archive-keyring.gpg \\
+    -o /usr/share/keyrings/gitvault-archive-keyring.gpg
+<span class="p">$</span> echo "deb [signed-by=/usr/share/keyrings/gitvault-archive-keyring.gpg] ${repo} ./" \\
+    | sudo tee /etc/apt/sources.list.d/gitvault.list
+<span class="p">$</span> sudo apt update
+<span class="p">$</span> sudo apt install git-vault`} />
+    </div>
   </section>
-  <section class="section wrap">
-    <div class="split" style="grid-template-columns:1fr 560px">
-      <div class="stack" style="gap:14px"><h2 class="h2" style="font-size:2rem">Prefer to build it yourself?</h2><p class="lead">Gitvault is MIT licensed. You need Node 22+, pnpm, stable Rust and the Tauri system libraries.</p></div>
-      <pre class="code" set:html={`<span class="g">$</span> git clone ${site.repoUrl}.git
-<span class="g">$</span> pnpm install
-<span class="g">$</span> pnpm dev
-<span class="c"># or the CLI only</span>
-<span class="g">$</span> cargo run -p gitvault-cli -- --help`} />
+
+  <section class="band">
+    <div class="wrap">
+      <h2 class="t-2 sec-title">What you need</h2>
+      <ul class="needs">
+        {needs.map((n) => <li><h3 class="t-3">{n.title}</h3><p>{n.body}</p></li>)}
+      </ul>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap split">
+      <div>
+        <h2 class="t-2">Build it yourself</h2>
+        <p class="lead">GitVault is MIT licensed. You need Node 22 or later, pnpm, stable Rust and the Tauri system libraries.</p>
+        <p><a class="arrow-link" href={site.repoUrl}>Source on GitHub <Icon name="arrow" size={16} sw={2} /></a></p>
+      </div>
+      <pre class="code" set:html={`<span class="p">$</span> git clone ${site.repoUrl}.git
+<span class="p">$</span> pnpm install
+<span class="p">$</span> pnpm dev
+<span class="c"># or only the CLI</span>
+<span class="p">$</span> cargo run -p gitvault-cli -- --help`} />
     </div>
   </section>
 </Base>
+
+<style>
+  .platforms { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+  .platform { display: flex; flex-direction: column; gap: 24px; padding: 32px; }
+  .platform .meta { margin-top: 8px; }
+  .platform .btn { height: 52px; font-size: 1rem; }
+  .note { color: var(--ink-2); font-size: 0.875rem; }
+  .verify { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 24px 0 clamp(72px, 10vw, 120px); font-size: 0.875rem; color: var(--ink-2); }
+  .verify svg { color: var(--ink-2); }
+  .split { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 56px; align-items: center; }
+  .split > div { display: flex; flex-direction: column; gap: 16px; align-items: flex-start; }
+  .split .eyebrow { margin-bottom: 4px; }
+  .split-wide { grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr); align-items: start; }
+  .split-wide .code { font-size: 0.75rem; }
+  .small { font-size: 0.875rem; }
+  .fpr { font-size: 0.8125rem !important; padding: 8px 12px !important; }
+  .sec-title { margin-bottom: 40px; }
+  .needs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px; }
+  .needs li { display: flex; flex-direction: column; gap: 10px; padding-top: 24px; border-top: 1px solid var(--rule-strong); }
+  .needs p { color: var(--ink-2); }
+  @media (max-width: 900px) {
+    .platforms, .split, .needs { grid-template-columns: 1fr; }
+  }
+</style>

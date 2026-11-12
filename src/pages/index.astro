@@ -4,200 +4,279 @@ import Icon from '../components/Icon.astro'
 import BrandIcon from '../components/BrandIcon.astro'
 import { site, href } from '../config'
 
-const vaultRows = ['DATABASE_URL', 'STRIPE_SECRET_KEY', 'OPENAI_API_KEY', 'JWT_SECRET']
-
-const stored = [
-  'Encrypted on your device before anything is uploaded',
-  'Kept in a private GitHub repo that you own',
-  'Synced to every laptop, server and teammate you allow',
-  'Every change is saved, so you can restore an old value',
+// The hero diff: the .env file that GitVault replaces, and the one line that takes its place.
+const removed = [
+  'DATABASE_URL=postgres://app:h7Kq2x@db.internal/app',
+  'STRIPE_SECRET_KEY=sk_live_51HxQe…',
+  'OPENAI_API_KEY=sk-proj-Qz8v…',
+  'JWT_SECRET=9f2c41e0b7d3…',
 ]
 
+// A real sequence: what happens to one secret, in order.
+const journey = [
+  { title: 'You add it', body: 'Type it into the desktop app, run gitvault secret add, or import the .env file you already have.', artifact: 'STRIPE_SECRET_KEY = ••••••••' },
+  { title: 'It is encrypted on your device', body: 'With a random vault key that only your master password or recovery key can unlock.', artifact: 'AES-256-GCM · Argon2id' },
+  { title: 'It is committed to your repo', body: 'A private GitHub repository in your account. Every change is a commit you can restore.', artifact: 'secrets/3f9a1c.enc' },
+  { title: 'Your app loads it at startup', body: 'Straight into the environment of your process. Never printed, never written to disk.', artifact: 'process.env.STRIPE_SECRET_KEY' },
+]
+
+// Add a row here to list a new way of loading secrets (and its logo in BrandIcon.astro).
 const loaders = [
-  { label: 'Node.js', title: 'One import', body: 'Add one line at the top of your app. Your secrets are in process.env before anything else runs.',
-    code: `<span class="c">// first line of your app</span>
-<span class="g">import '@adhil28/gitvault/config'</span>
+  { brand: 'node', name: 'Node.js', docs: '#node', link: 'Node.js docs', body: 'One import at the top of your app. Works with import and require, and ships its own types.',
+    code: `<span class="p">$</span> npm install @adhil28/gitvault
 
-process.env.DATABASE_URL <span class="c">// ready</span>` },
-  { label: 'Any language', title: 'One command', body: 'Start any program through Gitvault and it receives your secrets as environment variables.',
-    code: `<span class="g">$</span> gitvault run -- python app.py
-<span class="g">$</span> gitvault run -- go run .
-<span class="g">$</span> gitvault run -- docker compose up` },
-  { label: 'Servers and CI', title: 'One key per machine', body: 'Give each server its own key instead of your password. Revoke it whenever you want.',
-    code: `<span class="m">GITVAULT_TOKEN=••••••••
-GITVAULT_DEVICE_KEY=••••••••</span>
-
-<span class="g">$</span> gitvault run -- node server.js` },
-]
-
-// Add an entry here to list a new plugin (and its logo in BrandIcon.astro). The hero strip and the
-// Plugins section both read this list. `line` is the single line that loads it.
-const plugins = [
-  { icon: 'node', name: 'Node.js', pkg: '@adhil28/gitvault', docs: '#node',
-    line: `<span class="g">import</span> '@adhil28/gitvault/config'`,
-    body: 'Load an environment into process.env at startup. Works with import and require, and ships its own TypeScript types.',
-    code: `<span class="g">$</span> npm install @adhil28/gitvault
-
-<span class="g">import</span> '@adhil28/gitvault/config'` },
-  { icon: 'vite', name: 'Vite', pkg: '@adhil28/gitvault/vite', docs: '#vite',
-    line: `plugins: [<span class="g">gitvault()</span>]`,
-    body: 'Pick the environment from the Vite mode. Only VITE_ values reach your browser code, everything else stays on the server.',
+<span class="c">// first line of your app</span>
+<span class="k">import</span> <span class="s">'@adhil28/gitvault/config'</span>` },
+  { brand: 'vite', name: 'Vite', docs: '#vite', link: 'Vite docs', body: 'The environment follows the Vite mode. Only VITE_ values reach browser code; the rest stay on the server.',
     code: `<span class="c">// vite.config.ts</span>
-<span class="g">import</span> {gitvault} <span class="g">from</span> '@adhil28/gitvault/vite'
+<span class="k">import</span> { gitvault } <span class="k">from</span> <span class="s">'@adhil28/gitvault/vite'</span>
 
-plugins: [<span class="g">gitvault()</span>]` },
-  { icon: 'flutter', name: 'Flutter', pkg: 'gitvault_flutter', docs: '#flutter',
-    line: `<span class="g">$</span> gitvault_flutter run`,
-    body: 'Put one word in front of your Flutter command. Debug runs get your development values, release builds get production, passed in as dart-define values.',
-    code: `<span class="g">$</span> gitvault_flutter run
-<span class="c"># development</span>
-<span class="g">$</span> gitvault_flutter build apk
-<span class="c"># production</span>
+<span class="k">export default</span> defineConfig({ plugins: [gitvault()] })` },
+  { icon: 'terminal', name: 'Any language', docs: '#other', link: 'CLI docs', body: 'Start any program through the CLI and it receives your secrets as environment variables.',
+    code: `<span class="p">$</span> gitvault run -- python app.py
+<span class="p">$</span> gitvault run -- go run .
+<span class="p">$</span> gitvault run -- docker compose up` },
+  { icon: 'key', name: 'Servers and CI', docs: '#servers', link: 'Servers and CI docs', body: 'Give each machine its own device key and a read-only token. Revoke one without touching the others.',
+    code: `<span class="c"># set once on the machine</span>
+GITVAULT_TOKEN=<span class="c">••••••••</span>
+GITVAULT_DEVICE_KEY=<span class="c">••••••••</span>
 
-<span class="g">const</span> url = String.fromEnvironment(<span class="g">'FLUTTER_API_URL'</span>)` },
+<span class="p">$</span> gitvault run --environment production -- node server.js` },
 ]
 
-const steps = [
-  ['01', 'Sign in with GitHub', 'No new account. Gitvault creates a private repo for your vault and you pick a master password.'],
-  ['02', 'Add your secrets', 'Type them into the desktop app, or import the .env file you already have.'],
-  ['03', 'Load them in your project', 'Trust the project folder once, add the import, and delete the .env file.'],
+const features = [
+  { icon: 'history', title: 'History and restore', body: 'Every version of every secret, one click from coming back.' },
+  { icon: 'sync', title: 'Sync and conflicts', body: 'Two devices edited the same secret? Compare them side by side.' },
+  { icon: 'list', title: 'Audit log', body: 'Every reveal and change is recorded, so you know who saw what.' },
+  { icon: 'users', title: 'Collaborators', body: 'Invite teammates to the repository, read-only or with write access.' },
+  { icon: 'dice', title: 'Generator', body: 'Passwords, passphrases and PINs, with the strength you choose.' },
+  { icon: 'eye', title: 'Hidden by default', body: 'Values stay masked and hide again by themselves after you reveal them.' },
 ]
 
 const claims = [
-  ['Only you can read them', 'Secrets are encrypted with your master password on your device. GitHub only stores scrambled data.'],
-  ['Never printed, never logged', 'Values go straight into your app. They do not show up in your terminal, your logs or your repo.'],
-  ['Free and open source', 'No server to run and no subscription. The code and the vault format are public and MIT licensed.'],
+  { title: 'Only you can read them', body: 'Secrets are encrypted with your master password on your device. GitHub only ever stores ciphertext.' },
+  { title: 'Never printed, never logged', body: 'Values go straight into your app. They do not show up in your terminal, your logs or your shell history.' },
+  { title: 'No server, no subscription', body: 'Your vault is a git repository you already own. The code and the vault format are public and MIT licensed.' },
+]
+
+const setup = [
+  'Install GitVault and sign in with GitHub. It creates a private repository for your vault.',
+  'Import the .env file you already have.',
+  'Let the project folder load secrets, add the import, and delete the .env file.',
 ]
 ---
-<Base title={site.name} current="">
+<Base title={site.name}>
   <section class="hero">
-    <div class="wrap">
-      <h1 class="display">Store your secrets in the cloud.<br /><span class="green">Load them with one line.</span></h1>
-      <p class="lead">Gitvault keeps your API keys and passwords encrypted in a private GitHub repo you own, and loads them into your app when it starts. No more .env files to copy, share or lose.</p>
-      <div class="cta-row">
-        <a class="btn btn-primary" href={href('/download/')}>Download for Windows</a>
-        <a class="btn" href={href('/download/')}>Download for Ubuntu</a>
-      </div>
-      <p class="meta">v{site.version} &nbsp;·&nbsp; free and open source</p>
-
-      <div class="pipe">
-        <div class="panel">
-          <div class="panel-bar"><Icon name="cloud" size={16} />Your vault, in the cloud</div>
-          <ul class="rows">
-            {vaultRows.map((r) => <li><Icon name="lock" size={14} /><span>{r}</span><i>••••••••••••</i></li>)}
-          </ul>
-          <p class="panel-foot">Encrypted · private GitHub repo</p>
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <span class="eyebrow">Secrets manager for developers</span>
+        <h1 class="t-display">Delete your <code class="env">.env</code> file.</h1>
+        <p class="lead">GitVault encrypts your API keys and passwords on your device, keeps them in a private GitHub repository you own, and loads them into your app with one line.</p>
+        <div class="actions">
+          <a class="btn btn-primary" href={href('/download/')}><Icon name="download" size={18} sw={2} />Download GitVault</a>
+          <a class="btn" href={href('/docs/')}>Read the docs</a>
         </div>
-        <div class="pipe-arrow" aria-hidden="true"><Icon name="arrow" size={22} /><span>autoload</span></div>
-        <div class="panel">
-          <div class="panel-bar"><Icon name="code" size={16} />Your code</div>
-          <pre class="code" set:html={`<span class="g">import '@adhil28/gitvault/config'</span>
-
-<span class="c">// that's it. your secrets are loaded.</span>
-connect(process.env.DATABASE_URL)
-stripe(process.env.STRIPE_SECRET_KEY)`} />
-          <p class="panel-foot">No .env file · nothing to copy</p>
-        </div>
+        <p class="meta">v{site.version} · Windows and Ubuntu · Free and open source</p>
       </div>
 
-      <div class="plugin-strip">
-        <span class="label muted">Supported plugins</span>
-        <div class="plugin-chips">
-          {plugins.map((p) => (
-            <div class="plugin-chip">
-              <BrandIcon name={p.icon} size={36} />
-              <div><b>{p.name}</b><pre class="code" set:html={p.line} /></div>
-            </div>
-          ))}
+      <figure class="diff" aria-label="A git diff: the .env file is deleted and one import line is added to src/server.ts">
+        <div class="diff-bar"><span>your-app</span><span>2 files changed</span></div>
+        <div class="diff-file">
+          <div class="diff-name"><span>.env</span><em class="tag del">deleted</em></div>
+          <ol class="diff-lines">
+            {removed.map((line, i) => <li class="del" style={`--i:${i}`}><b>-</b><span>{line}</span></li>)}
+          </ol>
         </div>
-      </div>
+        <div class="diff-file">
+          <div class="diff-name"><span>src/server.ts</span><em class="tag add">+1</em></div>
+          <ol class="diff-lines">
+            <li class="add"><b>+</b><span><span class="k">import</span> <span class="s">'@adhil28/gitvault/config'</span></span></li>
+            <li><b></b><span><span class="k">import</span> {'{'} connect {'}'} <span class="k">from</span> <span class="s">'./db'</span></span></li>
+            <li><b></b><span></span></li>
+            <li><b></b><span>connect(process.env.DATABASE_URL)</span></li>
+          </ol>
+        </div>
+        <figcaption class="diff-foot"><Icon name="lock" size={14} /><span>The values now live encrypted in <code>secrets/*.enc</code> in your private repo.</span></figcaption>
+      </figure>
     </div>
   </section>
 
-  <section class="section" id="store">
-    <div class="wrap split">
-      <div class="stack" style="gap:20px">
-        <span class="label green">1 · Store</span>
-        <h2 class="h2">One safe place for every secret</h2>
-        <p class="lead">Add a secret once in the app. It is encrypted and saved to the cloud, ready on every machine you use.</p>
-        <ul class="ticks" style="font-size:16px;margin-top:8px">
-          {stored.map((s) => <li><Icon name="check" size={16} sw={2.25} />{s}</li>)}
-        </ul>
+  <section class="band" id="how">
+    <div class="wrap">
+      <div class="head">
+        <div><span class="eyebrow">How it works</span><h2 class="t-1">Where a secret goes</h2></div>
+        <p class="lead">From the moment you type it to the moment your app reads it, the value is only ever in plain text on your own machine.</p>
       </div>
-      <div class="shot plain"><img src={href('/app-vault.png')} width="1400" height="875" alt="The Gitvault app showing a list of secrets and the details of one secret" /></div>
+      <ol class="journey">
+        {journey.map((s, i) => (
+          <li>
+            <span class="step-n">{i + 1}</span>
+            <h3 class="t-3">{s.title}</h3>
+            <p>{s.body}</p>
+            <code class="artifact">{s.artifact}</code>
+          </li>
+        ))}
+      </ol>
     </div>
   </section>
 
-  <section class="section" id="autoload">
+  <section class="band" id="load">
     <div class="wrap">
-      <div class="sec-head">
-        <span class="label green">2 · Autoload</span>
-        <h2 class="h2">Your code gets its secrets by itself</h2>
-        <p class="lead">Pick the way that fits your project. Each one is a single line.</p>
+      <div class="head">
+        <div><span class="eyebrow">Use it in your code</span><h2 class="t-1">One line, whatever you build with</h2></div>
+        <p class="lead">Pick the way that fits your project. They all read the same vault, so a secret you change once is current everywhere.</p>
       </div>
-      <div class="cols c3">
+      <div class="loaders">
         {loaders.map((l) => (
-          <article class="card">
-            <span class="label muted">{l.label}</span>
-            <h3 class="h2" style="font-size:1.625rem">{l.title}</h3>
-            <p class="muted" style="font-size:15px;line-height:1.6">{l.body}</p>
-            <pre class="code grow" set:html={l.code} />
+          <article class="loader">
+            <div class="loader-info">
+              <div class="loader-name">
+                <span class="loader-icon">{l.brand ? <BrandIcon name={l.brand} size={22} /> : <Icon name={l.icon} size={20} />}</span>
+                <h3 class="t-3">{l.name}</h3>
+              </div>
+              <p>{l.body}</p>
+              <a class="arrow-link" href={`${href('/docs/')}${l.docs}`}>{l.link} <Icon name="arrow" size={16} sw={2} /></a>
+            </div>
+            <pre class="code" set:html={l.code} />
           </article>
         ))}
       </div>
     </div>
   </section>
 
-  <section class="section" id="plugins">
+  <section class="band" id="app">
     <div class="wrap">
-      <div class="sec-head">
-        <span class="label green">Plugins</span>
-        <h2 class="h2">Available for the tools you already use</h2>
-        <p class="lead">Official plugins load your secrets for you. More are on the way.</p>
+      <div class="head">
+        <div><span class="eyebrow">Desktop app</span><h2 class="t-1">Everything else, in one window</h2></div>
+        <p class="lead">Browse, edit and share your vaults in an app for Windows and Ubuntu. It comes with the <code>gitvault</code> command, and both use the same vault.</p>
       </div>
-      <div class="cols c3">
-        {plugins.map((p) => (
-          <article class="card">
-            <div class="plugin-head"><BrandIcon name={p.icon} size={28} /><span class="label muted">{p.name}</span></div>
-            <h3 class="h2" style="font-size:1.625rem"><code class="green">{p.pkg}</code></h3>
-            <p class="muted" style="font-size:15px;line-height:1.6">{p.body}</p>
-            <pre class="code grow" set:html={p.code} />
-            <p class="more"><a href={`${href('/docs/')}${p.docs}`}>Read the docs <Icon name="arrow" size={16} /></a></p>
-          </article>
+      <div class="shot"><img src={href('/app-vault.png')} width="1400" height="875" alt="The GitVault desktop app showing a list of secrets and the details of one secret" loading="lazy" /></div>
+      <ul class="features">
+        {features.map((f) => (
+          <li><Icon name={f.icon} size={20} /><div><h3>{f.title}</h3><p>{f.body}</p></div></li>
         ))}
-      </div>
+      </ul>
     </div>
   </section>
 
-  <section class="section" id="how">
+  <section class="band" id="security">
     <div class="wrap">
-      <div class="sec-head"><h2 class="h2">Set up in about two minutes</h2></div>
-      <div class="steps">
-        {steps.map(([n, t, b]) => <div class="step"><span class="n">{n}</span><h3 class="h3" style="font-size:1.375rem">{t}</h3><p>{b}</p></div>)}
+      <div class="head">
+        <div><span class="eyebrow">Security</span><h2 class="t-1">Your keys, your repository</h2></div>
+        <p><a class="arrow-link" href={href('/security/')}>How the encryption works <Icon name="arrow" size={16} sw={2} /></a></p>
       </div>
-      <pre class="code setup" set:html={`<span class="g">$</span> gitvault import env .env      <span class="c"># bring in what you have</span>
-<span class="g">$</span> gitvault trust add .           <span class="c"># this folder may load secrets</span>
-<span class="g">$</span> rm .env                        <span class="c"># you don't need it any more</span>`} />
-    </div>
-  </section>
-
-  <section class="section" id="security">
-    <div class="wrap">
       <div class="claims">
-        {claims.map(([t, b]) => <div class="claim"><h3 class="h3" style="font-size:1.125rem">{t}</h3><p>{b}</p></div>)}
+        {claims.map((c) => <div><h3 class="t-3">{c.title}</h3><p>{c.body}</p></div>)}
       </div>
-      <p class="center more"><a href={href('/security/')}>How the encryption works <Icon name="arrow" size={16} /></a></p>
     </div>
   </section>
 
-  <section class="section" style="padding-top:40px">
-    <div class="wrap">
-      <div class="cta-card">
-        <h2 class="h1" style="font-size:3rem">Stop copying .env files</h2>
-        <p class="lead" style="max-width:600px">Download Gitvault, add your secrets once, and let your projects load them.</p>
-        <div class="cta-row"><a class="btn btn-primary" href={href('/download/')}>Download for Windows</a><a class="btn" href={href('/download/')}>Download for Ubuntu</a></div>
-        <p class="meta">Windows 10 or later &nbsp;·&nbsp; Ubuntu 22.04 or later &nbsp;·&nbsp; Requires git</p>
+  <section class="setup">
+    <div class="wrap setup-grid">
+      <div>
+        <h2 class="t-1">Set up in about two minutes</h2>
+        <ol class="setup-steps">{setup.map((s) => <li>{s}</li>)}</ol>
+        <div class="actions">
+          <a class="btn btn-primary" href={href('/download/')}><Icon name="download" size={18} sw={2} />Download GitVault</a>
+          <a class="btn" href={href('/docs/')}>Get started guide</a>
+        </div>
       </div>
+      <pre class="code" set:html={`<span class="p">$</span> gitvault import env .env   <span class="c"># bring in what you have</span>
+<span class="p">$</span> gitvault trust add .        <span class="c"># this folder may load secrets</span>
+<span class="p">$</span> rm .env                     <span class="c"># you don't need it any more</span>`} />
     </div>
   </section>
 </Base>
+
+<style>
+  /* Hero */
+  .hero { position: relative; overflow: hidden; }
+  .hero::before { content: ''; position: absolute; right: -10%; top: 0; width: 70%; height: 80%; background: radial-gradient(closest-side, var(--glow), transparent); filter: blur(60px); pointer-events: none; }
+  .hero-grid { position: relative; }
+  .hero { padding-block: clamp(48px, 8vw, 96px) clamp(64px, 9vw, 112px); }
+  .hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: clamp(40px, 6vw, 80px); align-items: center; }
+  .hero-copy { display: flex; flex-direction: column; gap: 24px; }
+  .hero-copy .eyebrow { margin-bottom: 4px; }
+  .hero-copy .lead { max-width: 520px; }
+  .hero-copy .actions { margin-top: 8px; }
+  .env { font: inherit; font-family: var(--mono); font-weight: 600; font-size: 0.86em; letter-spacing: -0.06em; color: var(--ink-2); background: none; border: 0; padding: 0; text-decoration: line-through; text-decoration-thickness: 0.07em; text-decoration-color: var(--del); }
+
+  /* The signature: a git diff that removes the .env file. */
+  .diff { background: var(--code); color: var(--code-fg); border-radius: 16px; box-shadow: var(--shadow); overflow: hidden; font: 0.8125rem/1.7 var(--mono); border: 1px solid var(--code-rule); }
+  .diff-bar { display: flex; justify-content: space-between; gap: 16px; padding: 12px 18px; background: var(--code-bar); border-bottom: 1px solid var(--code-rule); color: var(--code-dim); font-size: 0.75rem; }
+  .diff-file + .diff-file { border-top: 1px solid var(--code-rule); }
+  .diff-name { display: flex; align-items: center; gap: 10px; padding: 12px 18px 6px; font-weight: 600; color: var(--code-fg); }
+  .tag { font-style: normal; font-weight: 500; font-size: 0.6875rem; padding: 1px 7px; border-radius: 99px; }
+  .tag.del { color: var(--code-del); background: var(--code-del-bg); }
+  .tag.add { color: var(--code-add); background: var(--code-add-bg); }
+  .diff-lines { padding-bottom: 12px; }
+  .diff-lines li { display: grid; grid-template-columns: 34px minmax(0, 1fr); min-height: 1.7em; padding-right: 18px; }
+  .diff-lines b { font-weight: 400; text-align: center; color: var(--code-dim); user-select: none; }
+  .diff-lines li > span { justify-self: start; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .diff-lines .del { background: var(--code-del-bg); }
+  .diff-lines .del b, .diff-lines .del > span { color: var(--code-del); }
+  .diff-lines .add { background: var(--code-add-bg); }
+  .diff-lines .add b { color: var(--code-add); }
+  .diff .k { color: var(--code-key); }
+  .diff .s { color: var(--code-str); }
+  .diff-foot { display: flex; align-items: flex-start; gap: 10px; padding: 12px 18px; border-top: 1px solid var(--code-rule); color: var(--code-dim); font-size: 0.75rem; }
+  .diff-foot svg { flex: none; margin-top: 2px; }
+  .diff-foot code { background: none; border: 0; padding: 0; color: var(--code-fg); font-size: 1em; }
+
+  /* One orchestrated load moment: removed lines are struck through in turn, then the import appears. */
+  @keyframes strike { from { background-size: 0% 1px; } to { background-size: 100% 1px; } }
+  @keyframes appear { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
+  .diff-lines .del > span { background: linear-gradient(currentColor, currentColor) no-repeat 0 55% / 100% 1px; animation: strike 0.45s cubic-bezier(.4, 0, .2, 1) both; animation-delay: calc(0.35s + var(--i) * 0.14s); }
+  .diff-lines .add { animation: appear 0.5s cubic-bezier(.2, .8, .2, 1) 1.15s both; }
+
+  /* How it works */
+  .journey { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px; counter-reset: step; }
+  .journey li { position: relative; display: flex; flex-direction: column; gap: 12px; padding-top: 28px; border-top: 1px solid var(--rule-strong); }
+  .step-n { position: absolute; top: -14px; left: 0; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--paper); border: 1px solid var(--rule-strong); font: 600 0.75rem/1 var(--mono); color: var(--ink-2); }
+  .journey p { color: var(--ink-2); font-size: 0.9375rem; }
+  .artifact { margin-top: auto; align-self: flex-start; font-size: 0.78125rem !important; color: var(--ink); max-width: 100%; }
+
+  /* Loaders: description left, code right, one row each. */
+  .loaders { border-top: 1px solid var(--rule); }
+  .loader { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 24px 56px; padding-block: 36px; border-bottom: 1px solid var(--rule); align-items: center; }
+  .loader-info { display: flex; flex-direction: column; gap: 12px; align-items: flex-start; }
+  .loader-name { display: flex; align-items: center; gap: 12px; }
+  .loader-icon { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 9px; background: var(--surface); border: 1px solid var(--rule); color: var(--ink-2); }
+  .loader-info p { color: var(--ink-2); max-width: 420px; }
+  .loader .code { margin: 0; }
+
+  /* Desktop app */
+  .shot { border-radius: 16px; overflow: hidden; border: 1px solid var(--rule); box-shadow: var(--shadow); background: var(--surface); }
+  .shot img { width: 100%; height: auto; }
+  .features { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 36px 40px; margin-top: 56px; }
+  .features li { display: flex; gap: 14px; }
+  .features svg { flex: none; color: var(--ink-2); margin-top: 2px; }
+  .features h3 { font-size: 1rem; font-weight: 600; margin-bottom: 4px; }
+  .features p { color: var(--ink-2); font-size: 0.9375rem; }
+
+  /* Security */
+  .claims { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px; }
+  .claims > div { border-left: 2px solid var(--rule-strong); padding-left: 20px; display: flex; flex-direction: column; gap: 10px; }
+  .claims p { color: var(--ink-2); }
+
+  /* Closing setup band, always dark. */
+  .setup { position: relative; overflow: hidden; background: var(--surface); border-top: 1px solid var(--rule); padding-block: clamp(72px, 10vw, 112px); }
+  .setup::before { content: ''; position: absolute; left: 50%; top: -160px; width: min(900px, 120vw); height: 320px; transform: translateX(-50%); background: radial-gradient(closest-side, var(--glow), transparent); filter: blur(40px); pointer-events: none; }
+  .setup > * { position: relative; }
+  .setup-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 56px; align-items: center; }
+  .setup-steps { counter-reset: s; display: flex; flex-direction: column; gap: 14px; margin: 32px 0 36px; }
+  .setup-steps li { counter-increment: s; display: grid; grid-template-columns: 32px 1fr; color: var(--ink-2); }
+  .setup-steps li::before { content: counter(s); font: 600 0.8125rem/1.9 var(--mono); color: var(--ink-3); }
+  .setup .code { background: var(--paper); border: 1px solid var(--code-rule); font-size: 0.84375rem; padding: 24px; }
+
+  @media (max-width: 1024px) {
+    .hero-grid, .setup-grid { grid-template-columns: 1fr; }
+    .journey { grid-template-columns: 1fr 1fr; row-gap: 48px; }
+    .features { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 760px) {
+    .loader { grid-template-columns: 1fr; }
+    .claims, .features, .journey { grid-template-columns: 1fr; }
+    .diff { font-size: 0.75rem; }
+  }
+</style>

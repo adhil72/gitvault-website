@@ -1,40 +1,57 @@
 ---
 import Base from '../layouts/Base.astro'
-import Icon from '../components/Icon.astro'
+import { site } from '../config'
+import { releases } from '../data/releases'
 
-const releases = [{
-  version: 'v0.1.1', date: 'November 11, 2026', title: 'Updates, checksums and a TypeScript library',
-  groups: [
-    ['Updates', ['The Windows app checks for signed updates and installs them from Settings, with a quiet notice at startup', 'Every release ships SHA256SUMS next to the installers']],
-    ['Developers', ['The Node.js library is now written in TypeScript, with types and both import and require support', 'Published on GitHub Packages as @adhil72/gitvault']],
-  ],
-}, {
-  version: 'v0.1.0', date: 'November 10, 2026', title: 'First public release',
-  groups: [
-    ['Vaults and secrets', ['Create, connect, unlock and lock encrypted vaults stored in a private GitHub repository', 'Add, edit, rotate and delete secrets with environments, tags, favorites and expiry reminders', 'Master password with Argon2id key derivation, AES-256-GCM encryption and a one-time recovery key']],
-    ['History and sync', ['Every change is a git commit, with version history and restore for any secret', 'Sync with GitHub and resolve conflicts side by side when two devices edit the same secret', 'Audit log of reveals and changes']],
-    ['Desktop and CLI', ['Desktop app for Windows and Ubuntu, with a password, passphrase and PIN generator', 'gitvault CLI: run and inject secrets without printing them, import and export .env files, JSON output and shell completions', 'Node.js package: import @adhil72/gitvault/config to load secrets into process.env', 'MCP server (gitvault mcp) so AI tools can use secrets without seeing values']],
-  ],
-}]
+const fmt = (iso: string) => new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })
 ---
-<Base title="Changelog" current="Changelog">
-  <section class="page-head wrap">
-    <h1 class="h1" style="font-size:3.5rem">Changelog</h1>
-    <p class="lead">New releases, fixes and everything that changed. Every release is listed here.</p>
+<Base title="Changelog" current="Changelog" description="Every GitVault release and what changed in it.">
+  <section class="wrap page-head">
+    <span class="eyebrow">Changelog</span>
+    <h1 class="t-1">What's new in GitVault</h1>
+    <p class="lead">Every release, newest first. Installed apps on Windows and Ubuntu offer each update in Settings.</p>
   </section>
-  <section class="wrap" style="padding-bottom:112px">
-    {releases.map((r) => (
-      <article class="release">
-        <div><div class="ver">{r.version}</div><div class="date">{r.date}</div></div>
-        <div>
-          <h2 class="h3" style="font-size:1.75rem;letter-spacing:-0.03em;margin-bottom:28px">{r.title}</h2>
+
+  <section class="wrap log">
+    {releases.map((r, i) => (
+      <article class="release" id={`v${r.version}`}>
+        <div class="when">
+          <a class="ver" href={`#v${r.version}`}>v{r.version}</a>
+          <time datetime={r.date}>{fmt(r.date)}</time>
+          {i === 0 && <span class="latest">Latest</span>}
+        </div>
+        <div class="what">
+          <h2 class="t-3">{r.title}</h2>
           {r.groups.map(([g, items]) => (
-            <div class="grp"><span class="label muted">{g}</span>
-              <ul class="ticks">{(items as string[]).map((i) => <li><Icon name="check" size={16} sw={2.25} />{i}</li>)}</ul></div>
+            <div class="grp">
+              <h3>{g}</h3>
+              <ul>{items.map((item) => <li>{item}</li>)}</ul>
+            </div>
           ))}
         </div>
       </article>
     ))}
-    <p class="muted" style="border-top:1px solid var(--border-muted);padding-top:40px">Older releases will appear here. Subscribe to the repository on GitHub to get new versions in your inbox.</p>
+    <p class="end">Older builds and checksums are on the <a class="prose-link" href={site.releasesPage}>releases page</a>.</p>
   </section>
 </Base>
+
+<style>
+  .log { padding-bottom: clamp(72px, 10vw, 120px); }
+  .release { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 16px 56px; padding-block: 40px; border-top: 1px solid var(--rule); scroll-margin-top: calc(var(--nav-h) + 16px); }
+  .when { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; position: sticky; top: calc(var(--nav-h) + 24px); align-self: start; }
+  .ver { font: 600 1.375rem/1.2 var(--mono); letter-spacing: -0.02em; color: var(--ink); }
+  .ver:hover { color: var(--accent); }
+  time { font: 0.8125rem var(--mono); color: var(--ink-3); }
+  .latest { margin-top: 6px; font: 500 0.6875rem/1 var(--mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); background: var(--accent-soft); padding: 5px 8px; border-radius: 99px; }
+  .what { display: flex; flex-direction: column; gap: 20px; max-width: 720px; }
+  .what .t-3 { font-size: 1.375rem; }
+  .grp h3 { font: 500 0.75rem/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 10px; }
+  .grp ul { display: flex; flex-direction: column; gap: 8px; }
+  .grp li { position: relative; padding-left: 20px; color: var(--ink-2); }
+  .grp li::before { content: ''; position: absolute; left: 2px; top: 0.7em; width: 6px; height: 6px; border-radius: 50%; background: var(--ink-3); }
+  .end { padding-top: 40px; border-top: 1px solid var(--rule); color: var(--ink-2); }
+  @media (max-width: 760px) {
+    .release { grid-template-columns: 1fr; }
+    .when { position: static; flex-direction: row; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  }
+</style>

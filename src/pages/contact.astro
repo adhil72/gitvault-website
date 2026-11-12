@@ -4,45 +4,94 @@ import Icon from '../components/Icon.astro'
 import { site, href } from '../config'
 
 const topics = ['Question', 'Bug', 'Idea', 'Security']
+const channels = [
+  { icon: 'github', title: 'Open an issue', body: 'For bugs you can reproduce.', url: site.issuesUrl },
+  { icon: 'users', title: 'Join the discussion', body: 'Ideas, questions and show-and-tell.', url: site.discussionsUrl },
+  { icon: 'shield', title: 'Report a vulnerability', body: 'Privately, through a GitHub security advisory.', url: site.securityUrl },
+]
 ---
-<Base title="Contact" current="Contact" description="Questions, bugs or ideas for Gitvault? Send a message.">
-  <section class="contact-hero wrap" id="intro">
-    <h1 class="display">Say hello</h1>
-    <p class="lead" style="margin-top:20px;max-width:520px;margin-inline:auto">Questions, bugs, ideas. Tell us what you need and we will reply.</p>
-  </section>
+<Base title="Contact" current="Contact" description="Questions, bugs or ideas for GitVault? Send a message.">
+  <section class="wrap contact">
+    <div class="intro" id="intro">
+      <span class="eyebrow">Contact</span>
+      <h1 class="t-1">Get in touch</h1>
+      <p class="lead">Questions, bugs or ideas. Tell us what you need and we will reply.</p>
+      <ul class="channels" id="alts">
+        {channels.map((c) => (
+          <li><a href={c.url}><Icon name={c.icon} size={20} /><span><b>{c.title}</b><small>{c.body}</small></span><Icon name="external" size={16} /></a></li>
+        ))}
+      </ul>
+    </div>
 
-  <section class="wrap" style="padding-bottom:128px" id="stage">
-    <form id="contact-form" class="form-card" novalidate data-endpoint={site.contactEndpoint ?? ''} data-issues={site.issuesUrl} data-security={site.securityUrl}>
+    <form id="contact-form" class="card form" novalidate data-endpoint={site.contactEndpoint ?? ''} data-issues={site.issuesUrl} data-security={site.securityUrl}>
       <div class="field">
         <span class="lbl" id="topic-lbl">What is this about?</span>
         <div class="segmented" role="radiogroup" aria-labelledby="topic-lbl">
           {topics.map((t, i) => (<><input type="radio" name="topic" id={`t-${t}`} value={t} checked={i === 0} /><label for={`t-${t}`}>{t}</label></>))}
         </div>
-        <p class="hint" id="security-hint" hidden>Please report vulnerabilities privately. <a class="green" href={site.securityUrl}>Open a security advisory</a> instead of using this form.</p>
+        <p class="hint" id="security-hint" hidden>Please report vulnerabilities privately. <a class="prose-link" href={site.securityUrl}>Open a security advisory</a> instead of using this form.</p>
       </div>
       <div class="row2">
         <div class="field"><label for="name">Name</label><input class="input" id="name" name="name" autocomplete="name" placeholder="Your name" /></div>
         <div class="field"><label for="email">Email</label><input class="input" id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required /><p class="hint" id="email-hint"></p></div>
       </div>
       <div class="field"><label for="message">Message</label><textarea class="input" id="message" name="message" placeholder="How can we help?" required></textarea><p class="hint" id="message-hint"></p></div>
-      <div class="stack" style="gap:14px;align-items:center">
-        <button class="btn btn-primary btn-lg btn-block" type="submit" id="send">Send message <Icon name="arrow" size={18} sw={2.25} /></button>
-        <p class="privacy"><Icon name="lock" size={14} />Please never include passwords or keys. We use your email only to reply.</p>
-      </div>
+      <button class="btn btn-primary btn-block send" type="submit" id="send">Send message <Icon name="arrow" size={18} sw={2} /></button>
+      <p class="privacy"><Icon name="lock" size={14} />Never include passwords or keys. We use your email only to reply.</p>
     </form>
 
     <div class="sent" id="sent" role="status">
-      <Icon name="check" size={72} sw={1.75} />
-      <h2 class="display" style="font-size:clamp(2.5rem,5vw,4rem)">Message sent</h2>
-      <p class="lead" id="sent-text" style="max-width:520px">Thanks. We will get back to you soon.</p>
-      <div class="cta-row"><a class="btn" href={href('/')}>Back to home</a><a class="btn" style="background:none;border-color:transparent;color:var(--fg-muted)" href={href('/docs/')}>Read the docs →</a></div>
-    </div>
-
-    <div class="quiet" id="alts">
-      <a href={site.issuesUrl}>Open an issue ↗</a><a href={site.discussionsUrl}>Join the discussion ↗</a><a href={site.securityUrl}>Report a vulnerability privately ↗</a>
+      <span class="sent-icon"><Icon name="check" size={32} sw={2} /></span>
+      <h2 class="t-1">Message sent</h2>
+      <p class="lead" id="sent-text">Thanks. We will get back to you soon.</p>
+      <div class="actions"><a class="btn" href={href('/')}>Back to home</a><a class="btn" href={href('/docs/')}>Read the docs</a></div>
     </div>
   </section>
 </Base>
+
+<style>
+  .contact { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: clamp(40px, 7vw, 96px); padding-block: clamp(56px, 9vw, 104px) clamp(72px, 10vw, 120px); align-items: start; }
+  .intro { display: flex; flex-direction: column; gap: 20px; }
+  .channels { margin-top: 20px; border-top: 1px solid var(--rule); }
+  .channels a { display: flex; align-items: center; gap: 16px; padding: 18px 4px; border-bottom: 1px solid var(--rule); color: var(--ink-2); transition: color 0.15s; }
+  .channels a:hover { color: var(--accent); }
+  .channels span { flex: 1; display: flex; flex-direction: column; }
+  .channels b { color: var(--ink); font-weight: 600; }
+  .channels small { font-size: 0.875rem; color: var(--ink-2); }
+
+  .form { display: flex; flex-direction: column; gap: 22px; padding: clamp(24px, 4vw, 36px); box-shadow: var(--shadow); }
+  .field { display: flex; flex-direction: column; gap: 8px; }
+  .field > label, .lbl { font-size: 0.875rem; font-weight: 600; }
+  .input { width: 100%; background: var(--paper); border: 1px solid var(--rule-strong); border-radius: 10px; padding: 12px 14px; color: var(--ink); font: 1rem var(--sans); transition: border-color 0.15s, box-shadow 0.15s; }
+  .input::placeholder { color: var(--ink-3); }
+  .input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
+  .input[aria-invalid='true'] { border-color: var(--del); }
+  textarea.input { min-height: 160px; resize: vertical; }
+  .hint { font-size: 0.8125rem; color: var(--ink-3); }
+  .hint:empty { display: none; }
+  .hint.err { color: var(--del); }
+  .hint.ok { color: var(--add); }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .segmented { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 4px; background: var(--sunken); border: 1px solid var(--rule); border-radius: 10px; }
+  .segmented input { position: absolute; opacity: 0; pointer-events: none; }
+  .segmented label { text-align: center; padding: 8px 0; border-radius: 7px; font-size: 0.875rem; font-weight: 500; color: var(--ink-2); cursor: pointer; transition: background 0.15s, color 0.15s; }
+  .segmented input:checked + label { background: var(--surface); color: var(--ink); font-weight: 600; box-shadow: 0 1px 3px rgb(0 0 0 / 0.4), inset 0 0 0 1px var(--rule-strong); }
+  .segmented input:focus-visible + label { outline: 2px solid var(--accent); }
+  .send { height: 50px; font-size: 1rem; }
+  .privacy { display: flex; gap: 8px; align-items: center; justify-content: center; font-size: 0.8125rem; color: var(--ink-3); }
+
+  .sent { display: none; grid-column: 1 / -1; flex-direction: column; align-items: flex-start; gap: 20px; max-width: 560px; }
+  .sent[data-show] { display: flex; }
+  .sent-icon { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); }
+
+  @media (max-width: 900px) {
+    .contact { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 520px) {
+    .row2 { grid-template-columns: 1fr; }
+    .segmented { grid-template-columns: 1fr 1fr; }
+  }
+</style>
 
 <script>
   const form = document.getElementById('contact-form') as HTMLFormElement
