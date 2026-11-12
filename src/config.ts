@@ -2,7 +2,7 @@
 export const site = {
   name: 'GitVault',
   // The desktop app's latest release (see CHANGELOG.md in the source repository).
-  version: '0.6.1',
+  version: '1.0.0',
   repoUrl: 'https://github.com/adhil72/gitvault',
   // Releases are published in this public repo; the names below never change between versions.
   releasesUrl: 'https://github.com/adhil72/gitvault-website/releases/latest/download',

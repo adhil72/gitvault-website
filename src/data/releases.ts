@@ -2,6 +2,9 @@
 export type Release = { version: string; date: string; title: string; groups: [string, string[]][] }
 
 export const releases: Release[] = [
+  { version: '1.0.0', date: '2026-11-12', title: 'GitVault 1.0', groups: [
+    ['Changed', ['First stable release: GitVault is now 1.0.0', 'The sign-in screen shows the installed app version instead of a fixed number']],
+  ] },
   { version: '0.6.1', date: '2026-11-12', title: 'Install and update with apt', groups: [
     ['Added', ['Ubuntu and Debian users can install and update GitVault with apt, from a GPG-signed repository published with every release', 'A security policy explains how to report a vulnerability privately']],
   ] },
