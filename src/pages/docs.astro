@@ -106,8 +106,11 @@ gitvault shell-init fish | source</pre>
       </section>
 
       <section id="sync">
-        <h2 class="t-2">Sync & inspect</h2>
-        <p><code>init</code> and <code>config</code> commit and push encrypted changes automatically via <code>git</code>. Use <code>sync</code>, <code>projects</code>, and <code>doctor</code> to inspect state or pull changes manually:</p>
+        <h2 class="t-2">Sync, backup & team sharing</h2>
+        <p>Every change is automatically committed and pushed to your private <code>gitvault-store</code> repository on GitHub — so you never lose or forget a <code>.env</code> when switching laptops or formatting your machine.</p>
+        <p>Handing a project to another developer? Instead of pasting <code>.env</code> files in chat, add them as a collaborator/contributor to your private GitHub vault repository and share the vault password. Because <code>gitvault.json</code> is already in the project repo, they just run:</p>
+        <pre class="code"><span class="p">$</span> GITVAULT_REPO=&lt;owner&gt;/gitvault-store gitvault load -- npm run dev</pre>
+        <p>Use <code>sync</code>, <code>projects</code>, and <code>doctor</code> to inspect state or pull changes manually:</p>
         <pre class="code"><span class="p">$</span> gitvault sync
 <span class="p">$</span> gitvault sync --status
 <span class="p">$</span> gitvault projects

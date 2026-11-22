@@ -37,17 +37,17 @@ const loaders = [
 
 const features = [
   { icon: 'terminal', title: 'Powered by git & gh', body: 'Zero internal OAuth flows, zero stored GitHub tokens. Uses your existing git and gh CLI session.' },
+  { icon: 'users', title: 'Share via GitHub contributors', body: 'Need another developer on the project? Add them as a contributor to your vault repo instead of pasting .env in chat.' },
+  { icon: 'history', title: 'Never lose or forget .env', body: 'Switch laptops or reinstall your OS anytime — clone the repo, unlock once, and every variable is back.' },
   { icon: 'list', title: 'Interactive config wizard', body: 'Run gitvault config to manage variables, switch or create environments, and copy secrets across envs.' },
   { icon: 'lock', title: 'Per-environment AEAD', body: 'Each environment is encrypted with AES-256-GCM bound to project and environment associated data.' },
   { icon: 'sync', title: 'Two-way git sync', body: 'Auto-commits and syncs via git pull --rebase and push, with offline-safe local fallback.' },
-  { icon: 'key', title: 'Local unlock cache', body: 'Master key stays in ~/.local/share/gitvault/session.key (0600) until you run gitvault lock.' },
-  { icon: 'eye', title: 'Masked by default', body: 'Variable values stay hidden in config listings and menus until you explicitly ask to reveal them.' },
 ]
 
 const claims = [
-  { title: 'Zero .env files on disk', body: 'gitvault init writes only non-secret project metadata. gitvault load injects variables directly into RAM.' },
-  { title: 'Only you can decrypt them', body: 'Secrets are sealed on your machine with Argon2id + AES-256-GCM. GitHub stores only encrypted blobs.' },
-  { title: 'Zero accounts to manage', body: 'No GitVault server, no subscription, no custom auth tokens. Just git, gh, and a single fast Rust binary.' },
+  { title: 'Never forget or lose .env again', body: 'Your encrypted secrets live safely in your GitHub vault repo — move machines or onboard new devs in seconds.' },
+  { title: 'Share projects safely in one invite', body: 'Stop sending .env files over WhatsApp or Slack. Add teammates as contributors on the vault repo and they run gitvault load.' },
+  { title: 'Zero .env files, zero extra accounts', body: 'Secrets load directly into RAM, stay encrypted at rest with Argon2id + AES-256-GCM, and use only git and gh.' },
 ]
 
 const setup = [
