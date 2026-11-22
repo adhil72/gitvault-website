@@ -1,13 +1,13 @@
 ---
 import Base from '../layouts/Base.astro'
-import { href } from '../config'
+import { href, site } from '../config'
 
 const groups = [
-  { title: 'Getting started', items: [['install', 'Install'], ['signin', 'Sign in to GitHub'], ['vault', 'Create a vault'], ['secret', 'Add a secret and use it']] },
-  { title: 'Use it in your apps', items: [['node', 'Node.js and TypeScript'], ['vite', 'Vite'], ['other', 'Other languages'], ['servers', 'Servers and CI']] },
+  { title: 'Workflow', items: [['install', 'Install & prerequisites'], ['init', 'Initialize a project'], ['config', 'Configure variables & envs'], ['load', 'Load secrets into memory']] },
+  { title: 'Operations', items: [['sync', 'Sync & inspect'], ['servers', 'Servers, CI & recovery']] },
 ]
 ---
-<Base title="Docs" current="Docs" description="Install GitVault, sign in with GitHub, store your first secret and load it into your app.">
+<Base title="Docs" current="Docs" description="Install GitVault v2, initialize a project with gitvault init, configure variables with gitvault config, and inject secrets into RAM with gitvault load.">
   <div class="wrap docs">
     <aside class="side" aria-label="Docs">
       <nav>
@@ -21,16 +21,16 @@ const groups = [
           <h2>Reference</h2>
           <a href={href('/security/')}>Security model</a>
           <a href={href('/changelog/')}>Changelog</a>
-          <a href={href('/download/')}>Download</a>
+          <a href={href('/download/')}>Install</a>
         </div>
       </nav>
     </aside>
 
     <article class="article">
       <header>
-        <span class="eyebrow">Docs</span>
+        <span class="eyebrow">Docs · v{site.version}</span>
         <h1 class="t-1">Get started</h1>
-        <p class="lead">Install GitVault, sign in with GitHub and store your first secret. It takes about two minutes, and the desktop app and the CLI use the same vault.</p>
+        <p class="lead">GitVault v2 is a fast, pure-CLI secrets manager powered exclusively by <code>git</code> and <code>gh</code>. Eliminate <code>.env</code> files in three commands: <code>init</code>, <code>config</code>, and <code>load</code>.</p>
         <details class="mobile-toc">
           <summary>On this page</summary>
           {groups.flatMap((g) => g.items).map(([id, t]) => <a href={`#${id}`}>{t}</a>)}
@@ -38,96 +38,92 @@ const groups = [
       </header>
 
       <section id="install">
-        <h2 class="t-2">Install</h2>
-        <p>Download the installer for Windows or Ubuntu from the <a class="prose-link" href={href('/download/')}>download page</a>, or install with apt on Ubuntu. GitVault needs git on your PATH.</p>
+        <h2 class="t-2">Install & prerequisites</h2>
+        <p>Both <code>git</code> and the GitHub CLI (<code>gh</code>) must be installed and signed in. GitVault never stores or manages GitHub tokens on its own.</p>
+        <pre class="code"><span class="p">$</span> gh auth login
+<span class="p">$</span> curl -fsSL {site.installScriptUrl} | sh</pre>
+        <p>This installs <code>gitvault</code> and its short alias <code>gv</code>. Add the shell wrapper to your profile so <code>gitvault load</code> exports directly into your current terminal session in memory:</p>
+        <pre class="code"><span class="c"># bash or zsh (~/.bashrc / ~/.zshrc)</span>
+eval "$(gitvault shell-init)"
+
+<span class="c"># fish (~/.config/fish/config.fish)</span>
+gitvault shell-init fish | source</pre>
       </section>
 
-      <section id="signin">
-        <h2 class="t-2">Sign in to GitHub</h2>
-        <p>Pick whichever fits. The GitHub CLI route needs no setup if you already use <code>gh</code>.</p>
-        <dl class="options">
-          <div><dt>GitHub CLI</dt><dd>Run <code>gh auth login</code> once, then choose "Continue with GitHub CLI" in the app.</dd></div>
-          <div><dt>Personal access token</dt><dd>Create a token with the <code>repo</code> scope and paste it into the app or pipe it to the CLI.</dd></div>
-          <div><dt>Device flow</dt><dd>Sign in from your browser. Needs an OAuth app with Device Flow enabled.</dd></div>
-        </dl>
-      </section>
+      <section id="init">
+        <h2 class="t-2">Initialize a project (`gitvault init`)</h2>
+        <p>Run <code>gitvault init</code> inside any project folder. On your very first run, GitVault uses <code>gh</code> to create a private <code>gitvault-store</code> repository on your GitHub account, asks for a master password, and prints a one-time recovery key.</p>
+        <pre class="code"><span class="p">$</span> cd ~/projects/shop-api
+<span class="p">$</span> gitvault init
+<span class="c"># Interactive: pick or create project and default environment</span>
 
-      <section id="vault">
-        <h2 class="t-2">Create a vault</h2>
-        <p>A vault is a private GitHub repository holding only encrypted files. Choose a master password and save the recovery key that is shown once.</p>
-        <pre class="code"><span class="p">$</span> gitvault auth login --from-gh
-<span class="p">$</span> gitvault vault create --name Personal
-<span class="c"># prompts for a master password and prints your recovery key</span></pre>
-        <div class="callout"><b>Keep your recovery key safe</b><p>It is the only way back in if you forget your master password. GitVault cannot recover it for you.</p></div>
-      </section>
-
-      <section id="secret">
-        <h2 class="t-2">Add a secret and use it</h2>
-        <p>Add secrets in the app, or from the terminal. The value comes from stdin or a hidden prompt, never from an argument.</p>
-        <pre class="code"><span class="p">$</span> echo -n "sk_live_…" | gitvault secret add STRIPE_KEY \
-    --environment production --value-stdin
-<span class="p">$</span> gitvault secret list
-<span class="p">$</span> gitvault run --environment production -- ./deploy.sh
-<span class="c"># secrets injected as environment variables, never printed</span>
-<span class="p">$</span> gitvault sync now</pre>
-        <p>Anything can run under the CLI: <code>gitvault run</code> injects an environment as variables and starts your command. Node.js and Vite projects can also load secrets for you, with no .env file in the project.</p>
-      </section>
-
-      <section id="node">
-        <h2 class="t-2">Node.js and TypeScript</h2>
-        <p>The library is written in TypeScript, ships its own types, and works with both <code>import</code> and <code>require</code> on Node 18 or newer. It is published on the public npm registry as <code>@adhil28/gitvault</code>, so no token or <code>.npmrc</code> is needed:</p>
-        <pre class="code"><span class="p">$</span> npm install @adhil28/gitvault</pre>
-        <p>Load one environment before anything else runs:</p>
-        <pre class="code"><span class="k">import</span> <span class="s">'@adhil28/gitvault/config'</span> <span class="c">// uses GITVAULT_ENV, then NODE_ENV</span></pre>
-        <p>Or call it yourself. It is synchronous, returns only the names it set (never values), and keeps variables that are already set unless you pass <code>override</code>:</p>
-        <pre class="code"><span class="k">import</span> {'{'} config, GitVaultError {'}'} <span class="k">from</span> <span class="s">'@adhil28/gitvault'</span>
-
-<span class="k">try</span> {'{'}
-  <span class="k">const</span> {'{'} environment, loaded {'}'} = config(<span class="s">'production'</span>)
-{'}'} <span class="k">catch</span> (e) {'{'}
-  <span class="c">// e.code: E_LOCKED, E_PERMISSION_DENIED, E_NOT_AUTHENTICATED, E_NOT_INSTALLED ...</span>
+<span class="c"># Or non-interactive with flags:</span>
+<span class="p">$</span> gitvault init -p shop-api -e development</pre>
+        <p>This creates a minimal, non-secret <code>gitvault.json</code> safe to commit to Git — never a <code>.env</code> file:</p>
+        <pre class="code">{'{'}
+  "project": "shop-api",
+  "environment": "development"
 {'}'}</pre>
-        <p>The library asks the installed <code>gitvault</code> CLI, so the CLI must be on PATH (or set <code>GITVAULT_BIN</code>). Secrets are never logged or written to disk.</p>
+        <div class="callout"><b>Keep your recovery key safe</b><p>Your recovery key is printed once when the vault store is first created. Save it somewhere safe in case you ever forget your master password.</p></div>
       </section>
 
-      <section id="vite">
-        <h2 class="t-2">Vite</h2>
-        <p>For Vite projects, add the plugin and drop the <code>.env</code> files. It loads one environment before Vite reads its own env, using the same <code>gitvault</code> CLI as the Node.js library, so it needs Node 18 or newer and Vite 5 or newer.</p>
-        <pre class="code"><span class="c">// vite.config.ts</span>
-<span class="k">import</span> {'{'} defineConfig {'}'} <span class="k">from</span> <span class="s">'vite'</span>
-<span class="k">import</span> {'{'} gitvault {'}'} <span class="k">from</span> <span class="s">'@adhil28/gitvault/vite'</span>
+      <section id="config">
+        <h2 class="t-2">Configure variables & environments (`gitvault config`)</h2>
+        <p>Run <code>gitvault config</code> inside your project (or pass <code>-p &lt;project&gt;</code>) for the interactive menu: choose <b>Config variables</b>, select or create an environment, and add, view, delete, copy, or import variables.</p>
+        <pre class="code"><span class="p">$</span> gitvault config                     <span class="c"># interactive wizard</span>
 
-<span class="k">export default</span> defineConfig({'{'}
-  plugins: [gitvault()],
-{'}'})</pre>
-        <p>The environment is the one you pass (<code>gitvault({'{'} environment: 'staging' {'}'})</code>), then <code>GITVAULT_ENV</code>, then the Vite mode. <code>vite</code> uses <code>development</code>, <code>vite build</code> uses <code>production</code>, and <code>--mode staging</code> uses <code>staging</code>.</p>
-        <div class="callout"><b>Only VITE_ values reach the browser</b><p>Vite hands variables that start with <code>VITE_</code> to your browser code, as <code>import.meta.env.VITE_API_URL</code>. Anything behind that prefix ends up in the built app, so give it only to values that are safe to publish.</p></div>
-        <p>Variables already set in your shell win over the vault, and the vault wins over <code>.env</code> files. The plugin logs only how many variables it loaded, never names or values. If the CLI is missing or the vault is locked, the dev server stops with a clear error.</p>
-        <p>The plugin runs after <code>vite.config.ts</code> has been read, so the config file itself cannot see vault values. If it needs one (a proxy target, say), load the vault first and skip the plugin. Pick the environment from the mode:</p>
-        <pre class="code"><span class="k">import</span> {'{'} defineConfig {'}'} <span class="k">from</span> <span class="s">'vite'</span>
-<span class="k">import</span> {'{'} config {'}'} <span class="k">from</span> <span class="s">'@adhil28/gitvault'</span>
-
-<span class="k">export default</span> defineConfig(({'{'} mode {'}'}) =&gt; {'{'}
-  config(mode === <span class="s">'production'</span> ? <span class="s">'frontend-prod'</span> : <span class="s">'frontend-dev'</span>)
-  <span class="k">return</span> {'{'}
-    server: {'{'} proxy: {'{'} <span class="s">'/api'</span>: process.env.VITE_API_URL {'}'} {'}'},
-  {'}'}
-{'}'})</pre>
+<span class="c"># Direct CLI shortcuts:</span>
+<span class="p">$</span> gitvault config set DATABASE_URL=postgres://localhost/app
+<span class="p">$</span> gitvault config set API_KEY --value-stdin &lt; key.txt
+<span class="p">$</span> gitvault config get DATABASE_URL
+<span class="p">$</span> gitvault config list                <span class="c"># masked by default</span>
+<span class="p">$</span> gitvault config list --reveal
+<span class="p">$</span> gitvault config rm API_KEY</pre>
+        <p>Already have a <code>.env</code> file? Migrate it into your encrypted vault and remove the plaintext file in one command:</p>
+        <pre class="code"><span class="p">$</span> gitvault config import .env --delete-source</pre>
+        <p>Manage environments directly as well:</p>
+        <pre class="code"><span class="p">$</span> gitvault config env list
+<span class="p">$</span> gitvault config env create preview
+<span class="p">$</span> gitvault config env clone development preview
+<span class="p">$</span> gitvault config env delete preview --yes</pre>
       </section>
 
-      <section id="other">
-        <h2 class="t-2">Other languages, scripts and tools</h2>
-        <p>Use the CLI directly. Secrets are injected for that one process and never printed:</p>
-        <pre class="code"><span class="p">$</span> gitvault run --environment production -- python app.py
-<span class="p">$</span> gitvault run --environment development -- docker compose up
-<span class="p">$</span> gitvault --json env export production <span class="c"># machine-readable, for tooling</span></pre>
-        <p>AI tools can use secrets without seeing the values through the MCP server: <code>gitvault mcp</code>.</p>
+      <section id="load">
+        <h2 class="t-2">Load secrets into memory (`gitvault load`)</h2>
+        <p>Secrets are decrypted in RAM and never written to disk as <code>.env</code>. Use <code>gitvault.json</code> automatically, or override with <code>-p</code> and <code>-e</code>:</p>
+        <pre class="code"><span class="c"># 1. Load into active shell session (with `eval "$(gitvault shell-init)"`):</span>
+<span class="p">$</span> gitvault load
+<span class="p">$</span> gitvault load -p shop-api -e production
+<span class="p">$</span> gitvault unload
+
+<span class="c"># 2. Inject directly into a child process:</span>
+<span class="p">$</span> gitvault load -- npm run dev
+<span class="p">$</span> gitvault load -p shop-api -e staging -- cargo run
+
+<span class="c"># 3. Export or JSON on stdout for scripts:</span>
+<span class="p">$</span> eval "$(gitvault load -p shop-api -e production --export)"
+<span class="p">$</span> gitvault load -p shop-api -e production --json</pre>
+      </section>
+
+      <section id="sync">
+        <h2 class="t-2">Sync & inspect</h2>
+        <p><code>init</code> and <code>config</code> commit and push encrypted changes automatically via <code>git</code>. Use <code>sync</code>, <code>projects</code>, and <code>doctor</code> to inspect state or pull changes manually:</p>
+        <pre class="code"><span class="p">$</span> gitvault sync
+<span class="p">$</span> gitvault sync --status
+<span class="p">$</span> gitvault projects
+<span class="p">$</span> gitvault doctor</pre>
       </section>
 
       <section id="servers">
-        <h2 class="t-2">Servers and CI</h2>
-        <p>Nothing interactive is needed. Set <code>GITVAULT_TOKEN</code> (a read-only GitHub token for the vault repo) and <code>GITVAULT_DEVICE_KEY</code> (from <code>gitvault device trust --name prod-server --export</code>). Both are removed from the process after use, and you can revoke a key any time with <code>gitvault device revoke</code>. <code>GITVAULT_PASSWORD</code> also works. A locked vault never prompts: it fails with <code>E_LOCKED</code>.</p>
-        <p>To limit a developer machine to one project, run <code>gitvault trust add . --env development</code> inside it. The device then unlocks by itself only in that folder.</p>
+        <h2 class="t-2">Servers, CI & recovery</h2>
+        <p>In CI or headless servers, authenticate <code>gh</code> (or provide <code>GH_TOKEN</code>) and set <code>GITVAULT_PASSWORD</code> (or pass <code>--password-stdin</code>). Pass <code>--non-interactive</code> so commands never hang waiting for input.</p>
+        <pre class="code"><span class="p">$</span> GITVAULT_PASSWORD=… gitvault --non-interactive \
+    load -p shop-api -e production -- ./deploy.sh</pre>
+        <dl class="options">
+          <div><dt>Lock local cache</dt><dd>Run <code>gitvault lock</code> to wipe <code>~/.local/share/gitvault/session.key</code> from disk.</dd></div>
+          <div><dt>Unlock with recovery key</dt><dd>Run <code>gitvault unlock --recovery-key XXXX-XXXX-…</code> if you forgot your password.</dd></div>
+          <div><dt>Rotate master password</dt><dd>Run <code>gitvault unlock --change-password</code> to re-wrap the vault key without re-encrypting environments.</dd></div>
+        </dl>
       </section>
 
       <nav class="next" aria-label="Next">
@@ -139,7 +135,6 @@ const groups = [
 </Base>
 
 <script>
-  // Highlight the sidebar entry for the section being read.
   const links = new Map([...document.querySelectorAll<HTMLAnchorElement>('[data-spy]')].map((a) => [a.dataset.spy, a]))
   const observer = new IntersectionObserver((entries) => {
     for (const e of entries) {

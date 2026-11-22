@@ -2,6 +2,22 @@
 export type Release = { version: string; date: string; title: string; groups: [string, string[]][] }
 
 export const releases: Release[] = [
+  { version: '2.0.0', date: '2026-11-22', title: 'GitVault 2.0 — Pure CLI, Zero .env, Powered by git & gh', groups: [
+    ['Added', [
+      'Effortless 3-command workflow: gitvault init, gitvault config, and gitvault load (with short alias gv)',
+      'Interactive gitvault config menus (Config variables → select or create environment → add, view, delete, copy, or migrate legacy .env files)',
+      'In-memory shell loading via eval "$(gitvault shell-init)" (bash, zsh, fish), child-process injection (gitvault load -- <cmd>), --export, --json, and gitvault unload',
+      'Direct CLI overrides with -p <project> -e <environment>, or automatic resolution from gitvault.json across parent directories',
+      'Per-environment AES-256-GCM encryption bound with gitvault:v2:<project>:<environment> associated data',
+    ]],
+    ['Changed', [
+      'Powered exclusively by installed git and gh CLIs — zero internal GitHub OAuth device flow, tokens, or account management',
+      'Rebuilt as a fast, single-binary Rust CLI stored cleanly in ~/.local/share/gitvault/store (0700) with a separate session.key (0600)',
+    ]],
+    ['Removed', [
+      'Removed the Tauri desktop app, Node.js (@adhil28/gitvault), Vite plugin, and Spring Boot integrations in favor of universal CLI loading',
+    ]],
+  ] },
   { version: '1.0.0', date: '2026-11-12', title: 'GitVault 1.0', groups: [
     ['Changed', ['First stable release: GitVault is now 1.0.0', 'The sign-in screen shows the installed app version instead of a fixed number']],
   ] },

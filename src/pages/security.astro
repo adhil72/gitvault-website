@@ -3,37 +3,36 @@ import Base from '../layouts/Base.astro'
 import Icon from '../components/Icon.astro'
 import { site } from '../config'
 
-const encrypted = ['Secret names and values', 'Notes, tags and environments', 'Expiry dates and favorites', 'Version numbers and timestamps']
-const visible = ['How many secrets exist and when they changed', 'The vault name and key-derivation settings', 'Commit messages, which contain ids only, never names']
+const encrypted = ['Variable keys and values per environment', 'Stored as one AES-256-GCM blob per env', 'Fresh 96-bit random nonce on every write', 'Zero secret keys or values in file names']
+const visible = ['vault.json header (KDF params and wrapped vault key)', 'Project and environment names (project.json)', 'Git commit history and timestamps']
 
-// Each chain reads left to right: input, how it is turned into a key, and what it unlocks.
 const chains = [
-  { label: 'Unlock with your password', nodes: [['Master password', 'you type it'], ['Argon2id', 'key derivation'], ['Key-encryption key', 'never stored'], ['Vault key', '32 random bytes']] },
+  { label: 'Unlock with your password', nodes: [['Master password', 'you type it'], ['Argon2id', '64 MiB · 3 passes'], ['Key-encryption key', 'never stored'], ['Vault key', '32 random bytes']] },
   { label: 'Unlock with your recovery key', nodes: [['Recovery key', '160 random bits'], ['HKDF-SHA256', 'key derivation'], ['Key-encryption key', 'never stored'], ['Vault key', 'same key, second lock']] },
-  { label: 'Encrypt each secret', nodes: [['Vault key', 'unlocked in memory'], ['AES-256-GCM', 'fresh 96-bit nonce'], ['secrets/<id>.enc', 'ciphertext on GitHub']] },
+  { label: 'Encrypt each environment', nodes: [['Vault key', 'unlocked in RAM'], ['AES-256-GCM', 'AAD: project + env'], ['envs/<env>.enc', 'ciphertext on GitHub']] },
 ]
 
 const details = [
-  ['Changing your password is cheap', 'Only the vault key is wrapped again. No secret has to be re-encrypted.'],
-  ['Files are bound to their vault', 'The vault id and secret id are part of the authenticated data, so a file copied or renamed elsewhere fails to decrypt.'],
-  ['Ids are checked when read', 'Ids from a cloned repository are validated on load, so a crafted header cannot point file paths outside the vault.'],
-  ['Values stay hidden', 'Secrets are masked by default, hide again after you reveal them, and every reveal is recorded in the audit log.'],
-  ['Short-lived unlocks', 'The unlocked key is kept for an idle timeout (5 minutes by default), then the vault locks again.'],
-  ['Revocable machine access', 'Servers and CI use their own named device keys with a read-only GitHub token. Revoke one without touching the others.'],
+  ['Zero .env files on disk', 'gitvault init writes only non-secret gitvault.json. gitvault load decrypts straight into child process env or shell RAM.'],
+  ['Cross-environment tamper protection', 'Associated data binds every blob to gitvault:v2:<project>:<environment>, so swapping or copying .enc files fails authentication.'],
+  ['Zero stored GitHub tokens', 'GitVault delegates authentication, repo creation, cloning, and git credentials exclusively to your installed gh and git CLIs.'],
+  ['Strict filesystem permissions', 'The hidden vault store (~/.local/share/gitvault/store) is created 0700 and the local session.key cache is 0600, wiped by gitvault lock.'],
+  ['Cheap password rotation', 'gitvault unlock --change-password re-wraps only the VaultKey inside vault.json; encrypted environment files stay untouched.'],
+  ['Path-traversal & injection defense', 'Project/env slugs allow only [a-zA-Z0-9_-], variable keys enforce POSIX identifiers, and --export shell-escapes every value.'],
 ]
 ---
-<Base title="Security" current="Security" description="How GitVault encrypts your secrets on your device before anything reaches git or GitHub.">
+<Base title="Security" current="Security" description="How GitVault v2 encrypts your environment variables on your device before anything reaches git or GitHub.">
   <section class="wrap page-head">
-    <span class="eyebrow">Security model</span>
+    <span class="eyebrow">Security model · v2</span>
     <h1 class="t-1">How GitVault protects your secrets</h1>
-    <p class="lead">Everything sensitive is encrypted on your device before it reaches git or GitHub. Here is exactly what is stored, and how.</p>
+    <p class="lead">Everything sensitive is encrypted on your device before it touches git or GitHub, and decrypted only in memory when you load it.</p>
   </section>
 
   <section class="band">
     <div class="wrap">
       <div class="head">
         <h2 class="t-2">What lives in your repository</h2>
-        <p class="lead">The repository is created private and holds only ciphertext and a small plain-text header.</p>
+        <p class="lead">Your private <code>gitvault-store</code> repository holds only ciphertext environments, project manifests, and a wrapped key header.</p>
       </div>
       <div class="split3">
         <div class="card">
@@ -44,12 +43,15 @@ const details = [
           <h3 class="t-3"><Icon name="eye" size={18} />Visible in the repository</h3>
           <ul class="ticks plain">{visible.map((i) => <li><span>–</span>{i}</li>)}</ul>
         </div>
-        <pre class="code tree"><span class="c">&lt;vault repo&gt;/</span>
-├─ .gitvault/
-│  └─ vault.json   <span class="c"># header, no secrets</span>
-└─ secrets/
-   ├─ 3f9a1c.enc   <span class="c"># one file</span>
-   └─ 8b02d7.enc   <span class="c"># per secret</span></pre>
+        <pre class="code tree"><span class="c">&lt;user&gt;/gitvault-store/</span>
+├─ .gitattributes     <span class="c"># * binary</span>
+├─ vault.json         <span class="c"># KDF + wrapped key</span>
+└─ projects/
+   └─ shop-api/
+      ├─ project.json <span class="c"># project + envs</span>
+      └─ envs/
+         ├─ development.enc
+         └─ production.enc</pre>
       </div>
     </div>
   </section>
@@ -58,7 +60,7 @@ const details = [
     <div class="wrap">
       <div class="head">
         <h2 class="t-2">The key hierarchy</h2>
-        <p class="lead">Secrets are never encrypted directly with your password. A random vault key does the work, and your password only wraps that key.</p>
+        <p class="lead">Environments are encrypted with a random 256-bit vault key; your master password and recovery key only wrap that key.</p>
       </div>
       <div class="chains">
         {chains.map((c) => (

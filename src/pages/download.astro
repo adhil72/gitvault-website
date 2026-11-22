@@ -2,63 +2,57 @@
 import Base from '../layouts/Base.astro'
 import Icon from '../components/Icon.astro'
 import { site } from '../config'
+
 const downloadUrl = (name: string) => `${site.releasesUrl}/${name}`
 
-const platforms = [
-  { name: 'Windows', req: 'Windows 10 or later', file: 'GitVault-setup.exe', label: 'Download for Windows', kind: '.exe installer', note: 'Needs git. Install Git for Windows first if you do not have it.' },
-  { name: 'Ubuntu and Debian', req: 'Ubuntu 22.04 or later', file: 'GitVault.deb', label: 'Download for Ubuntu', kind: '.deb package', note: 'Installs git and the GitHub CLI for you. Or use apt below to get updates.' },
-]
 const needs = [
-  { title: 'A GitHub account', body: 'Your vault is a private repository in your account. Sign in with the GitHub CLI, a personal access token or the device flow.' },
-  { title: 'git on your PATH', body: 'GitVault uses git for history and sync, so every change is a commit you can inspect.' },
-  { title: 'A master password', body: 'It never leaves your device. You also get a recovery key once, so keep it somewhere safe.' },
+  { title: 'Git on your PATH', body: 'GitVault uses git directly for commits, pull --rebase, push, and versioned history inside your hidden vault store.' },
+  { title: 'GitHub CLI (gh) signed in', body: 'Run gh auth login once. GitVault requires gh to create, clone, and authenticate with your private gitvault-store repository.' },
+  { title: 'A master password', body: 'Never leaves your device. Derives an Argon2id key to protect your vault key, paired with a one-time recovery key.' },
 ]
-const repo = 'https://github.com/adhil72/gitvault-website/releases/latest/download'
+
+const archives = [
+  { label: 'Linux x86_64', file: 'gitvault-x86_64-unknown-linux-gnu.tar.gz' },
+  { label: 'macOS Apple Silicon', file: 'gitvault-aarch64-apple-darwin.tar.gz' },
+  { label: 'Windows x86_64', file: 'gitvault-x86_64-pc-windows-msvc.zip' },
+]
 ---
-<Base title="Download" description="Download GitVault for Windows or Ubuntu. The desktop app includes the gitvault command-line tool.">
+<Base title="Install" description="Install the GitVault v2 CLI (gitvault and gv). Requires git and GitHub CLI (gh).">
   <section class="wrap page-head">
-    <span class="eyebrow">Download · v{site.version}</span>
-    <h1 class="t-1">Get GitVault</h1>
-    <p class="lead">Free and open source. The desktop app includes the <code>gitvault</code> command, so terminals and the Node.js library work right after installing.</p>
+    <span class="eyebrow">Install · v{site.version}</span>
+    <h1 class="t-1">Install GitVault CLI</h1>
+    <p class="lead">Free and open source. Installs the <code>gitvault</code> binary and its short alias <code>gv</code>. Requires <code>git</code> and the GitHub CLI (<code>gh</code>).</p>
   </section>
 
   <section class="wrap">
-    <div class="platforms">
-      {platforms.map((p) => (
-        <article class="card platform">
+    <div class="split">
+      <div>
+        <h2 class="t-2">Quick install script</h2>
+        <p class="lead">Checks that <code>git</code> and <code>gh</code> are installed, installs the prebuilt release binary (or builds with Cargo if needed), and links <code>gv</code>.</p>
+      </div>
+      <pre class="code" set:html={`<span class="p">$</span> gh auth login
+<span class="p">$</span> curl -fsSL ${site.installScriptUrl} | sh
+<span class="c"># optional: enable in-shell loading</span>
+<span class="p">$</span> eval "$(gitvault shell-init)"`} />
+    </div>
+
+    <div class="archives">
+      {archives.map((a) => (
+        <a class="card archive" href={downloadUrl(a.file)}>
           <div>
-            <h2 class="t-2">{p.name}</h2>
-            <p class="meta">{p.req} · {p.kind}</p>
+            <b>{a.label}</b>
+            <span class="meta">{a.file}</span>
           </div>
-          <a class="btn btn-primary btn-block" href={downloadUrl(p.file)}><Icon name="download" size={18} sw={2} />{p.label}</a>
-          <p class="note">{p.note}</p>
-        </article>
+          <Icon name="download" size={18} sw={2} />
+        </a>
       ))}
     </div>
-    <p class="verify"><Icon name="shield" size={16} />Verify a download with <code>sha256sum -c SHA256SUMS --ignore-missing</code> · <a class="prose-link" href={downloadUrl('SHA256SUMS')}>SHA256SUMS</a> · <a class="prose-link" href={site.releasesPage}>All releases</a></p>
-  </section>
-
-  <section class="band" id="apt">
-    <div class="wrap split split-wide">
-      <div>
-        <span class="eyebrow">Ubuntu and Debian</span>
-        <h2 class="t-2">Install and update with apt</h2>
-        <p class="lead">Each release publishes a GPG-signed apt repository, so <code>apt upgrade</code> keeps GitVault current and checks the signature every time.</p>
-        <p class="muted small">Before trusting the key, check that <code>gpg --show-keys --fingerprint</code> on the <a class="prose-link" href={`${repo}/gitvault-archive-keyring.asc`}>armored key</a> prints:</p>
-        <code class="fpr">2F22 86FD 69D5 C056 80FC  12BF BCCE 9E57 C812 62F0</code>
-      </div>
-      <pre class="code" set:html={`<span class="p">$</span> sudo curl -fsSL ${repo}/gitvault-archive-keyring.gpg \\
-    -o /usr/share/keyrings/gitvault-archive-keyring.gpg
-<span class="p">$</span> echo "deb [signed-by=/usr/share/keyrings/gitvault-archive-keyring.gpg] ${repo} ./" \\
-    | sudo tee /etc/apt/sources.list.d/gitvault.list
-<span class="p">$</span> sudo apt update
-<span class="p">$</span> sudo apt install git-vault`} />
-    </div>
+    <p class="verify"><Icon name="shield" size={16} />Verify downloads with <code>sha256sum -c SHA256SUMS --ignore-missing</code> · <a class="prose-link" href={downloadUrl('SHA256SUMS')}>SHA256SUMS</a> · <a class="prose-link" href={site.releasesPage}>All releases</a></p>
   </section>
 
   <section class="band">
     <div class="wrap">
-      <h2 class="t-2 sec-title">What you need</h2>
+      <h2 class="t-2 sec-title">Prerequisites</h2>
       <ul class="needs">
         {needs.map((n) => <li><h3 class="t-3">{n.title}</h3><p>{n.body}</p></li>)}
       </ul>
@@ -68,39 +62,34 @@ const repo = 'https://github.com/adhil72/gitvault-website/releases/latest/downlo
   <section class="band">
     <div class="wrap split">
       <div>
-        <h2 class="t-2">Build it yourself</h2>
-        <p class="lead">GitVault is MIT licensed. You need Node 22 or later, pnpm, stable Rust and the Tauri system libraries.</p>
+        <h2 class="t-2">Build from source</h2>
+        <p class="lead">GitVault v2 is a standalone, single-crate Rust CLI (MIT licensed). Only stable Rust, <code>git</code>, and <code>gh</code> are required.</p>
         <p><a class="arrow-link" href={site.repoUrl}>Source on GitHub <Icon name="arrow" size={16} sw={2} /></a></p>
       </div>
-      <pre class="code" set:html={`<span class="p">$</span> git clone ${site.repoUrl}.git
-<span class="p">$</span> pnpm install
-<span class="p">$</span> pnpm dev
-<span class="c"># or only the CLI</span>
-<span class="p">$</span> cargo run -p gitvault-cli -- --help`} />
+      <pre class="code" set:html={`<span class="p">$</span> cargo install --git ${site.repoUrl} --locked
+<span class="c"># or clone and run the local installer:</span>
+<span class="p">$</span> git clone ${site.repoUrl}.git
+<span class="p">$</span> cd gitvault && ./scripts/install.sh`} />
     </div>
   </section>
 </Base>
 
 <style>
-  .platforms { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
-  .platform { display: flex; flex-direction: column; gap: 24px; padding: 32px; }
-  .platform .meta { margin-top: 8px; }
-  .platform .btn { height: 52px; font-size: 1rem; }
-  .note { color: var(--ink-2); font-size: 0.875rem; }
-  .verify { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 24px 0 clamp(72px, 10vw, 120px); font-size: 0.875rem; color: var(--ink-2); }
-  .verify svg { color: var(--ink-2); }
   .split { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 56px; align-items: center; }
   .split > div { display: flex; flex-direction: column; gap: 16px; align-items: flex-start; }
-  .split .eyebrow { margin-bottom: 4px; }
-  .split-wide { grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr); align-items: start; }
-  .split-wide .code { font-size: 0.75rem; }
-  .small { font-size: 0.875rem; }
-  .fpr { font-size: 0.8125rem !important; padding: 8px 12px !important; }
+  .archives { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 32px; }
+  .archive { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 20px 22px; transition: border-color 0.15s; }
+  .archive:hover { border-color: var(--accent); }
+  .archive div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .archive .meta { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .archive svg { flex: none; color: var(--ink-2); }
+  .verify { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 24px 0 clamp(72px, 10vw, 120px); font-size: 0.875rem; color: var(--ink-2); }
+  .verify svg { color: var(--ink-2); }
   .sec-title { margin-bottom: 40px; }
   .needs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px; }
   .needs li { display: flex; flex-direction: column; gap: 10px; padding-top: 24px; border-top: 1px solid var(--rule-strong); }
   .needs p { color: var(--ink-2); }
   @media (max-width: 900px) {
-    .platforms, .split, .needs { grid-template-columns: 1fr; }
+    .split, .needs, .archives { grid-template-columns: 1fr; }
   }
 </style>

@@ -1,13 +1,12 @@
 // Single place for links that change between environments.
 export const site = {
   name: 'GitVault',
-  // The desktop app's latest release (see CHANGELOG.md in the source repository).
-  version: '1.0.0',
+  version: '2.0.0',
   repoUrl: 'https://github.com/adhil72/gitvault',
+  installScriptUrl: 'https://raw.githubusercontent.com/adhil72/gitvault/main/scripts/install.sh',
   // Releases are published in this public repo; the names below never change between versions.
   releasesUrl: 'https://github.com/adhil72/gitvault-website/releases/latest/download',
   releasesPage: 'https://github.com/adhil72/gitvault-website/releases',
-  npmUrl: 'https://www.npmjs.com/package/@adhil28/gitvault',
   issuesUrl: 'https://github.com/adhil72/gitvault/issues/new',
   discussionsUrl: 'https://github.com/adhil72/gitvault/discussions',
   securityUrl: 'https://github.com/adhil72/gitvault/security/advisories/new',

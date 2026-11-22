@@ -2,12 +2,12 @@
 import '../styles/global.css'
 import Icon from '../components/Icon.astro'
 import { site, nav, href } from '../config'
-const { title, description = 'GitVault encrypts your API keys and passwords on your device, keeps them in a private GitHub repository you own, and loads them into your app with one line. No .env files.', current = '' } = Astro.props
-const full = title === site.name ? `${site.name} · Encrypted secrets in your own GitHub repo` : `${title} · ${site.name}`
+const { title, description = 'GitVault is a fast, pure-CLI secrets manager powered by git and gh. Delete your .env files and inject encrypted secrets directly into RAM.', current = '' } = Astro.props
+const full = title === site.name ? `${site.name} · Zero-.env CLI powered by git & gh` : `${title} · ${site.name}`
 
 const footer = [
-  { title: 'Product', links: [['Download', href('/download/')], ['Changelog', href('/changelog/')], ['Security model', href('/security/')]] },
-  { title: 'Docs', links: [['Get started', href('/docs/')], ['Node.js', href('/docs/#node')], ['Vite', href('/docs/#vite')], ['Servers and CI', href('/docs/#servers')]] },
+  { title: 'Product', links: [['Install CLI', href('/download/')], ['Changelog', href('/changelog/')], ['Security model', href('/security/')]] },
+  { title: 'Docs', links: [['Get started', href('/docs/')], ['Interactive config', href('/docs/#config')], ['Loading secrets', href('/docs/#load')], ['Servers and CI', href('/docs/#servers')]] },
   { title: 'Project', links: [['Source on GitHub', site.repoUrl], ['Report an issue', site.issuesUrl], ['Discussions', site.discussionsUrl], ['Contact', href('/contact/')]] },
 ]
 ---
@@ -33,7 +33,7 @@ const footer = [
         </nav>
         <div class="nav-right">
           <a class="nav-gh" href={site.repoUrl} aria-label="GitVault on GitHub"><Icon name="github" size={20} /></a>
-          <a class="btn btn-primary btn-sm" href={href('/download/')}>Download</a>
+          <a class="btn btn-primary btn-sm" href={href('/download/')}>Install</a>
           <details class="nav-menu">
             <summary aria-label="Menu"><Icon name="menu" size={22} /></summary>
             <div class="nav-sheet">
@@ -50,7 +50,7 @@ const footer = [
         <div class="foot-grid">
           <div class="foot-brand">
             <a class="brand" href={href('/')}><img src={href('/logo.png')} alt="" width="28" height="28" />{site.name}</a>
-            <p>Encrypted secrets in a private GitHub repository you own. Free and open source.</p>
+            <p>Zero-.env encrypted secrets in a private GitHub repository via git and gh. Free and open source.</p>
           </div>
           {footer.map((col) => (
             <div class="foot-col">
